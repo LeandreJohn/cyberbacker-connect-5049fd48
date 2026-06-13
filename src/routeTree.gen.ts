@@ -21,6 +21,7 @@ import { Route as AppKnowledgeBaseRouteImport } from './routes/_app.knowledge-ba
 import { Route as AppContractsRouteImport } from './routes/_app.contracts'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
 import { Route as AppAttendanceRouteImport } from './routes/_app.attendance'
+import { Route as AppInternalRecruitmentRouteImport } from './routes/_app.internal.recruitment'
 import { Route as AppInternalCyberbackersRouteImport } from './routes/_app.internal.cyberbackers'
 import { Route as AppInternalClientsRouteImport } from './routes/_app.internal.clients'
 
@@ -83,6 +84,11 @@ const AppAttendanceRoute = AppAttendanceRouteImport.update({
   path: '/attendance',
   getParentRoute: () => AppRoute,
 } as any)
+const AppInternalRecruitmentRoute = AppInternalRecruitmentRouteImport.update({
+  id: '/internal/recruitment',
+  path: '/internal/recruitment',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppInternalCyberbackersRoute = AppInternalCyberbackersRouteImport.update({
   id: '/internal/cyberbackers',
   path: '/internal/cyberbackers',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/support': typeof AppSupportRoute
   '/internal/clients': typeof AppInternalClientsRoute
   '/internal/cyberbackers': typeof AppInternalCyberbackersRoute
+  '/internal/recruitment': typeof AppInternalRecruitmentRoute
 }
 export interface FileRoutesByTo {
   '/attendance': typeof AppAttendanceRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/internal/clients': typeof AppInternalClientsRoute
   '/internal/cyberbackers': typeof AppInternalCyberbackersRoute
+  '/internal/recruitment': typeof AppInternalRecruitmentRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/_app/': typeof AppIndexRoute
   '/_app/internal/clients': typeof AppInternalClientsRoute
   '/_app/internal/cyberbackers': typeof AppInternalCyberbackersRoute
+  '/_app/internal/recruitment': typeof AppInternalRecruitmentRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/internal/clients'
     | '/internal/cyberbackers'
+    | '/internal/recruitment'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/attendance'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/'
     | '/internal/clients'
     | '/internal/cyberbackers'
+    | '/internal/recruitment'
   id:
     | '__root__'
     | '/_app'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/_app/'
     | '/_app/internal/clients'
     | '/_app/internal/cyberbackers'
+    | '/_app/internal/recruitment'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -280,6 +292,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAttendanceRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/internal/recruitment': {
+      id: '/_app/internal/recruitment'
+      path: '/internal/recruitment'
+      fullPath: '/internal/recruitment'
+      preLoaderRoute: typeof AppInternalRecruitmentRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/internal/cyberbackers': {
       id: '/_app/internal/cyberbackers'
       path: '/internal/cyberbackers'
@@ -311,6 +330,7 @@ interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppInternalClientsRoute: typeof AppInternalClientsRoute
   AppInternalCyberbackersRoute: typeof AppInternalCyberbackersRoute
+  AppInternalRecruitmentRoute: typeof AppInternalRecruitmentRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -327,6 +347,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppInternalClientsRoute: AppInternalClientsRoute,
   AppInternalCyberbackersRoute: AppInternalCyberbackersRoute,
+  AppInternalRecruitmentRoute: AppInternalRecruitmentRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
