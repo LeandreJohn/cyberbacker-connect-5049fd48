@@ -28,6 +28,7 @@ import { Route as AppInternalExecutiveRouteImport } from './routes/_app.internal
 import { Route as AppInternalCyberbackersRouteImport } from './routes/_app.internal.cyberbackers'
 import { Route as AppInternalClientsRouteImport } from './routes/_app.internal.clients'
 import { Route as AppInternalAnalyticsRouteImport } from './routes/_app.internal.analytics'
+import { Route as AppInternalAdminRouteImport } from './routes/_app.internal.admin'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -123,6 +124,11 @@ const AppInternalAnalyticsRoute = AppInternalAnalyticsRouteImport.update({
   path: '/internal/analytics',
   getParentRoute: () => AppRoute,
 } as any)
+const AppInternalAdminRoute = AppInternalAdminRouteImport.update({
+  id: '/internal/admin',
+  path: '/internal/admin',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/rewards': typeof AppRewardsRoute
   '/settings': typeof AppSettingsRoute
   '/support': typeof AppSupportRoute
+  '/internal/admin': typeof AppInternalAdminRoute
   '/internal/analytics': typeof AppInternalAnalyticsRoute
   '/internal/clients': typeof AppInternalClientsRoute
   '/internal/cyberbackers': typeof AppInternalCyberbackersRoute
@@ -156,6 +163,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsRoute
   '/support': typeof AppSupportRoute
   '/': typeof AppIndexRoute
+  '/internal/admin': typeof AppInternalAdminRoute
   '/internal/analytics': typeof AppInternalAnalyticsRoute
   '/internal/clients': typeof AppInternalClientsRoute
   '/internal/cyberbackers': typeof AppInternalCyberbackersRoute
@@ -178,6 +186,7 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRoute
   '/_app/support': typeof AppSupportRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/internal/admin': typeof AppInternalAdminRoute
   '/_app/internal/analytics': typeof AppInternalAnalyticsRoute
   '/_app/internal/clients': typeof AppInternalClientsRoute
   '/_app/internal/cyberbackers': typeof AppInternalCyberbackersRoute
@@ -200,6 +209,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/settings'
     | '/support'
+    | '/internal/admin'
     | '/internal/analytics'
     | '/internal/clients'
     | '/internal/cyberbackers'
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/support'
     | '/'
+    | '/internal/admin'
     | '/internal/analytics'
     | '/internal/clients'
     | '/internal/cyberbackers'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/_app/support'
     | '/_app/'
+    | '/_app/internal/admin'
     | '/_app/internal/analytics'
     | '/_app/internal/clients'
     | '/_app/internal/cyberbackers'
@@ -389,6 +401,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInternalAnalyticsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/internal/admin': {
+      id: '/_app/internal/admin'
+      path: '/internal/admin'
+      fullPath: '/internal/admin'
+      preLoaderRoute: typeof AppInternalAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -404,6 +423,7 @@ interface AppRouteChildren {
   AppSettingsRoute: typeof AppSettingsRoute
   AppSupportRoute: typeof AppSupportRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppInternalAdminRoute: typeof AppInternalAdminRoute
   AppInternalAnalyticsRoute: typeof AppInternalAnalyticsRoute
   AppInternalClientsRoute: typeof AppInternalClientsRoute
   AppInternalCyberbackersRoute: typeof AppInternalCyberbackersRoute
@@ -425,6 +445,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppSettingsRoute: AppSettingsRoute,
   AppSupportRoute: AppSupportRoute,
   AppIndexRoute: AppIndexRoute,
+  AppInternalAdminRoute: AppInternalAdminRoute,
   AppInternalAnalyticsRoute: AppInternalAnalyticsRoute,
   AppInternalClientsRoute: AppInternalClientsRoute,
   AppInternalCyberbackersRoute: AppInternalCyberbackersRoute,
