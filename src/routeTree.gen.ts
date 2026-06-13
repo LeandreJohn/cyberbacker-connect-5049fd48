@@ -24,6 +24,7 @@ import { Route as AppAttendanceRouteImport } from './routes/_app.attendance'
 import { Route as AppInternalTicketsRouteImport } from './routes/_app.internal.tickets'
 import { Route as AppInternalRecruitmentRouteImport } from './routes/_app.internal.recruitment'
 import { Route as AppInternalFinanceRouteImport } from './routes/_app.internal.finance'
+import { Route as AppInternalExecutiveRouteImport } from './routes/_app.internal.executive'
 import { Route as AppInternalCyberbackersRouteImport } from './routes/_app.internal.cyberbackers'
 import { Route as AppInternalClientsRouteImport } from './routes/_app.internal.clients'
 import { Route as AppInternalAnalyticsRouteImport } from './routes/_app.internal.analytics'
@@ -102,6 +103,11 @@ const AppInternalFinanceRoute = AppInternalFinanceRouteImport.update({
   path: '/internal/finance',
   getParentRoute: () => AppRoute,
 } as any)
+const AppInternalExecutiveRoute = AppInternalExecutiveRouteImport.update({
+  id: '/internal/executive',
+  path: '/internal/executive',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppInternalCyberbackersRoute = AppInternalCyberbackersRouteImport.update({
   id: '/internal/cyberbackers',
   path: '/internal/cyberbackers',
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/internal/analytics': typeof AppInternalAnalyticsRoute
   '/internal/clients': typeof AppInternalClientsRoute
   '/internal/cyberbackers': typeof AppInternalCyberbackersRoute
+  '/internal/executive': typeof AppInternalExecutiveRoute
   '/internal/finance': typeof AppInternalFinanceRoute
   '/internal/recruitment': typeof AppInternalRecruitmentRoute
   '/internal/tickets': typeof AppInternalTicketsRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/internal/analytics': typeof AppInternalAnalyticsRoute
   '/internal/clients': typeof AppInternalClientsRoute
   '/internal/cyberbackers': typeof AppInternalCyberbackersRoute
+  '/internal/executive': typeof AppInternalExecutiveRoute
   '/internal/finance': typeof AppInternalFinanceRoute
   '/internal/recruitment': typeof AppInternalRecruitmentRoute
   '/internal/tickets': typeof AppInternalTicketsRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/_app/internal/analytics': typeof AppInternalAnalyticsRoute
   '/_app/internal/clients': typeof AppInternalClientsRoute
   '/_app/internal/cyberbackers': typeof AppInternalCyberbackersRoute
+  '/_app/internal/executive': typeof AppInternalExecutiveRoute
   '/_app/internal/finance': typeof AppInternalFinanceRoute
   '/_app/internal/recruitment': typeof AppInternalRecruitmentRoute
   '/_app/internal/tickets': typeof AppInternalTicketsRoute
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
     | '/internal/analytics'
     | '/internal/clients'
     | '/internal/cyberbackers'
+    | '/internal/executive'
     | '/internal/finance'
     | '/internal/recruitment'
     | '/internal/tickets'
@@ -213,6 +223,7 @@ export interface FileRouteTypes {
     | '/internal/analytics'
     | '/internal/clients'
     | '/internal/cyberbackers'
+    | '/internal/executive'
     | '/internal/finance'
     | '/internal/recruitment'
     | '/internal/tickets'
@@ -233,6 +244,7 @@ export interface FileRouteTypes {
     | '/_app/internal/analytics'
     | '/_app/internal/clients'
     | '/_app/internal/cyberbackers'
+    | '/_app/internal/executive'
     | '/_app/internal/finance'
     | '/_app/internal/recruitment'
     | '/_app/internal/tickets'
@@ -349,6 +361,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInternalFinanceRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/internal/executive': {
+      id: '/_app/internal/executive'
+      path: '/internal/executive'
+      fullPath: '/internal/executive'
+      preLoaderRoute: typeof AppInternalExecutiveRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/internal/cyberbackers': {
       id: '/_app/internal/cyberbackers'
       path: '/internal/cyberbackers'
@@ -388,6 +407,7 @@ interface AppRouteChildren {
   AppInternalAnalyticsRoute: typeof AppInternalAnalyticsRoute
   AppInternalClientsRoute: typeof AppInternalClientsRoute
   AppInternalCyberbackersRoute: typeof AppInternalCyberbackersRoute
+  AppInternalExecutiveRoute: typeof AppInternalExecutiveRoute
   AppInternalFinanceRoute: typeof AppInternalFinanceRoute
   AppInternalRecruitmentRoute: typeof AppInternalRecruitmentRoute
   AppInternalTicketsRoute: typeof AppInternalTicketsRoute
@@ -408,6 +428,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppInternalAnalyticsRoute: AppInternalAnalyticsRoute,
   AppInternalClientsRoute: AppInternalClientsRoute,
   AppInternalCyberbackersRoute: AppInternalCyberbackersRoute,
+  AppInternalExecutiveRoute: AppInternalExecutiveRoute,
   AppInternalFinanceRoute: AppInternalFinanceRoute,
   AppInternalRecruitmentRoute: AppInternalRecruitmentRoute,
   AppInternalTicketsRoute: AppInternalTicketsRoute,
