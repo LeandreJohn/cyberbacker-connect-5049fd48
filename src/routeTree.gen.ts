@@ -15,6 +15,7 @@ import { Route as AppSupportRouteImport } from './routes/_app.support'
 import { Route as AppPerformanceRouteImport } from './routes/_app.performance'
 import { Route as AppMyCyberbackersRouteImport } from './routes/_app.my-cyberbackers'
 import { Route as AppMarketplaceRouteImport } from './routes/_app.marketplace'
+import { Route as AppKnowledgeBaseRouteImport } from './routes/_app.knowledge-base'
 import { Route as AppAttendanceRouteImport } from './routes/_app.attendance'
 
 const AppRoute = AppRouteImport.update({
@@ -46,6 +47,11 @@ const AppMarketplaceRoute = AppMarketplaceRouteImport.update({
   path: '/marketplace',
   getParentRoute: () => AppRoute,
 } as any)
+const AppKnowledgeBaseRoute = AppKnowledgeBaseRouteImport.update({
+  id: '/knowledge-base',
+  path: '/knowledge-base',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAttendanceRoute = AppAttendanceRouteImport.update({
   id: '/attendance',
   path: '/attendance',
@@ -55,6 +61,7 @@ const AppAttendanceRoute = AppAttendanceRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/attendance': typeof AppAttendanceRoute
+  '/knowledge-base': typeof AppKnowledgeBaseRoute
   '/marketplace': typeof AppMarketplaceRoute
   '/my-cyberbackers': typeof AppMyCyberbackersRoute
   '/performance': typeof AppPerformanceRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/attendance': typeof AppAttendanceRoute
+  '/knowledge-base': typeof AppKnowledgeBaseRoute
   '/marketplace': typeof AppMarketplaceRoute
   '/my-cyberbackers': typeof AppMyCyberbackersRoute
   '/performance': typeof AppPerformanceRoute
@@ -72,6 +80,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/_app/attendance': typeof AppAttendanceRoute
+  '/_app/knowledge-base': typeof AppKnowledgeBaseRoute
   '/_app/marketplace': typeof AppMarketplaceRoute
   '/_app/my-cyberbackers': typeof AppMyCyberbackersRoute
   '/_app/performance': typeof AppPerformanceRoute
@@ -83,6 +92,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/attendance'
+    | '/knowledge-base'
     | '/marketplace'
     | '/my-cyberbackers'
     | '/performance'
@@ -90,6 +100,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/attendance'
+    | '/knowledge-base'
     | '/marketplace'
     | '/my-cyberbackers'
     | '/performance'
@@ -99,6 +110,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app'
     | '/_app/attendance'
+    | '/_app/knowledge-base'
     | '/_app/marketplace'
     | '/_app/my-cyberbackers'
     | '/_app/performance'
@@ -154,6 +166,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMarketplaceRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/knowledge-base': {
+      id: '/_app/knowledge-base'
+      path: '/knowledge-base'
+      fullPath: '/knowledge-base'
+      preLoaderRoute: typeof AppKnowledgeBaseRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/attendance': {
       id: '/_app/attendance'
       path: '/attendance'
@@ -166,6 +185,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAttendanceRoute: typeof AppAttendanceRoute
+  AppKnowledgeBaseRoute: typeof AppKnowledgeBaseRoute
   AppMarketplaceRoute: typeof AppMarketplaceRoute
   AppMyCyberbackersRoute: typeof AppMyCyberbackersRoute
   AppPerformanceRoute: typeof AppPerformanceRoute
@@ -175,6 +195,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAttendanceRoute: AppAttendanceRoute,
+  AppKnowledgeBaseRoute: AppKnowledgeBaseRoute,
   AppMarketplaceRoute: AppMarketplaceRoute,
   AppMyCyberbackersRoute: AppMyCyberbackersRoute,
   AppPerformanceRoute: AppPerformanceRoute,
