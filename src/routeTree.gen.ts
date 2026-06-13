@@ -9,61 +9,457 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as AppIndexRouteImport } from './routes/_app.index'
+import { Route as AppSupportRouteImport } from './routes/_app.support'
+import { Route as AppSettingsRouteImport } from './routes/_app.settings'
+import { Route as AppRewardsRouteImport } from './routes/_app.rewards'
+import { Route as AppPerformanceRouteImport } from './routes/_app.performance'
+import { Route as AppMyCyberbackersRouteImport } from './routes/_app.my-cyberbackers'
+import { Route as AppMarketplaceRouteImport } from './routes/_app.marketplace'
+import { Route as AppKnowledgeBaseRouteImport } from './routes/_app.knowledge-base'
+import { Route as AppContractsRouteImport } from './routes/_app.contracts'
+import { Route as AppBillingRouteImport } from './routes/_app.billing'
+import { Route as AppAttendanceRouteImport } from './routes/_app.attendance'
+import { Route as AppInternalTicketsRouteImport } from './routes/_app.internal.tickets'
+import { Route as AppInternalRecruitmentRouteImport } from './routes/_app.internal.recruitment'
+import { Route as AppInternalFinanceRouteImport } from './routes/_app.internal.finance'
+import { Route as AppInternalExecutiveRouteImport } from './routes/_app.internal.executive'
+import { Route as AppInternalCyberbackersRouteImport } from './routes/_app.internal.cyberbackers'
+import { Route as AppInternalClientsRouteImport } from './routes/_app.internal.clients'
+import { Route as AppInternalAnalyticsRouteImport } from './routes/_app.internal.analytics'
+import { Route as AppInternalAdminRouteImport } from './routes/_app.internal.admin'
 
-const IndexRoute = IndexRouteImport.update({
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSupportRoute = AppSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRewardsRoute = AppRewardsRouteImport.update({
+  id: '/rewards',
+  path: '/rewards',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPerformanceRoute = AppPerformanceRouteImport.update({
+  id: '/performance',
+  path: '/performance',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyCyberbackersRoute = AppMyCyberbackersRouteImport.update({
+  id: '/my-cyberbackers',
+  path: '/my-cyberbackers',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMarketplaceRoute = AppMarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppKnowledgeBaseRoute = AppKnowledgeBaseRouteImport.update({
+  id: '/knowledge-base',
+  path: '/knowledge-base',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppContractsRoute = AppContractsRouteImport.update({
+  id: '/contracts',
+  path: '/contracts',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBillingRoute = AppBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAttendanceRoute = AppAttendanceRouteImport.update({
+  id: '/attendance',
+  path: '/attendance',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInternalTicketsRoute = AppInternalTicketsRouteImport.update({
+  id: '/internal/tickets',
+  path: '/internal/tickets',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInternalRecruitmentRoute = AppInternalRecruitmentRouteImport.update({
+  id: '/internal/recruitment',
+  path: '/internal/recruitment',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInternalFinanceRoute = AppInternalFinanceRouteImport.update({
+  id: '/internal/finance',
+  path: '/internal/finance',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInternalExecutiveRoute = AppInternalExecutiveRouteImport.update({
+  id: '/internal/executive',
+  path: '/internal/executive',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInternalCyberbackersRoute = AppInternalCyberbackersRouteImport.update({
+  id: '/internal/cyberbackers',
+  path: '/internal/cyberbackers',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInternalClientsRoute = AppInternalClientsRouteImport.update({
+  id: '/internal/clients',
+  path: '/internal/clients',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInternalAnalyticsRoute = AppInternalAnalyticsRouteImport.update({
+  id: '/internal/analytics',
+  path: '/internal/analytics',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInternalAdminRoute = AppInternalAdminRouteImport.update({
+  id: '/internal/admin',
+  path: '/internal/admin',
+  getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AppIndexRoute
+  '/attendance': typeof AppAttendanceRoute
+  '/billing': typeof AppBillingRoute
+  '/contracts': typeof AppContractsRoute
+  '/knowledge-base': typeof AppKnowledgeBaseRoute
+  '/marketplace': typeof AppMarketplaceRoute
+  '/my-cyberbackers': typeof AppMyCyberbackersRoute
+  '/performance': typeof AppPerformanceRoute
+  '/rewards': typeof AppRewardsRoute
+  '/settings': typeof AppSettingsRoute
+  '/support': typeof AppSupportRoute
+  '/internal/admin': typeof AppInternalAdminRoute
+  '/internal/analytics': typeof AppInternalAnalyticsRoute
+  '/internal/clients': typeof AppInternalClientsRoute
+  '/internal/cyberbackers': typeof AppInternalCyberbackersRoute
+  '/internal/executive': typeof AppInternalExecutiveRoute
+  '/internal/finance': typeof AppInternalFinanceRoute
+  '/internal/recruitment': typeof AppInternalRecruitmentRoute
+  '/internal/tickets': typeof AppInternalTicketsRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/attendance': typeof AppAttendanceRoute
+  '/billing': typeof AppBillingRoute
+  '/contracts': typeof AppContractsRoute
+  '/knowledge-base': typeof AppKnowledgeBaseRoute
+  '/marketplace': typeof AppMarketplaceRoute
+  '/my-cyberbackers': typeof AppMyCyberbackersRoute
+  '/performance': typeof AppPerformanceRoute
+  '/rewards': typeof AppRewardsRoute
+  '/settings': typeof AppSettingsRoute
+  '/support': typeof AppSupportRoute
+  '/': typeof AppIndexRoute
+  '/internal/admin': typeof AppInternalAdminRoute
+  '/internal/analytics': typeof AppInternalAnalyticsRoute
+  '/internal/clients': typeof AppInternalClientsRoute
+  '/internal/cyberbackers': typeof AppInternalCyberbackersRoute
+  '/internal/executive': typeof AppInternalExecutiveRoute
+  '/internal/finance': typeof AppInternalFinanceRoute
+  '/internal/recruitment': typeof AppInternalRecruitmentRoute
+  '/internal/tickets': typeof AppInternalTicketsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_app': typeof AppRouteWithChildren
+  '/_app/attendance': typeof AppAttendanceRoute
+  '/_app/billing': typeof AppBillingRoute
+  '/_app/contracts': typeof AppContractsRoute
+  '/_app/knowledge-base': typeof AppKnowledgeBaseRoute
+  '/_app/marketplace': typeof AppMarketplaceRoute
+  '/_app/my-cyberbackers': typeof AppMyCyberbackersRoute
+  '/_app/performance': typeof AppPerformanceRoute
+  '/_app/rewards': typeof AppRewardsRoute
+  '/_app/settings': typeof AppSettingsRoute
+  '/_app/support': typeof AppSupportRoute
+  '/_app/': typeof AppIndexRoute
+  '/_app/internal/admin': typeof AppInternalAdminRoute
+  '/_app/internal/analytics': typeof AppInternalAnalyticsRoute
+  '/_app/internal/clients': typeof AppInternalClientsRoute
+  '/_app/internal/cyberbackers': typeof AppInternalCyberbackersRoute
+  '/_app/internal/executive': typeof AppInternalExecutiveRoute
+  '/_app/internal/finance': typeof AppInternalFinanceRoute
+  '/_app/internal/recruitment': typeof AppInternalRecruitmentRoute
+  '/_app/internal/tickets': typeof AppInternalTicketsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/attendance'
+    | '/billing'
+    | '/contracts'
+    | '/knowledge-base'
+    | '/marketplace'
+    | '/my-cyberbackers'
+    | '/performance'
+    | '/rewards'
+    | '/settings'
+    | '/support'
+    | '/internal/admin'
+    | '/internal/analytics'
+    | '/internal/clients'
+    | '/internal/cyberbackers'
+    | '/internal/executive'
+    | '/internal/finance'
+    | '/internal/recruitment'
+    | '/internal/tickets'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/attendance'
+    | '/billing'
+    | '/contracts'
+    | '/knowledge-base'
+    | '/marketplace'
+    | '/my-cyberbackers'
+    | '/performance'
+    | '/rewards'
+    | '/settings'
+    | '/support'
+    | '/'
+    | '/internal/admin'
+    | '/internal/analytics'
+    | '/internal/clients'
+    | '/internal/cyberbackers'
+    | '/internal/executive'
+    | '/internal/finance'
+    | '/internal/recruitment'
+    | '/internal/tickets'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/_app/attendance'
+    | '/_app/billing'
+    | '/_app/contracts'
+    | '/_app/knowledge-base'
+    | '/_app/marketplace'
+    | '/_app/my-cyberbackers'
+    | '/_app/performance'
+    | '/_app/rewards'
+    | '/_app/settings'
+    | '/_app/support'
+    | '/_app/'
+    | '/_app/internal/admin'
+    | '/_app/internal/analytics'
+    | '/_app/internal/clients'
+    | '/_app/internal/cyberbackers'
+    | '/_app/internal/executive'
+    | '/_app/internal/finance'
+    | '/_app/internal/recruitment'
+    | '/_app/internal/tickets'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/': {
+      id: '/_app/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/support': {
+      id: '/_app/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof AppSupportRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/rewards': {
+      id: '/_app/rewards'
+      path: '/rewards'
+      fullPath: '/rewards'
+      preLoaderRoute: typeof AppRewardsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/performance': {
+      id: '/_app/performance'
+      path: '/performance'
+      fullPath: '/performance'
+      preLoaderRoute: typeof AppPerformanceRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/my-cyberbackers': {
+      id: '/_app/my-cyberbackers'
+      path: '/my-cyberbackers'
+      fullPath: '/my-cyberbackers'
+      preLoaderRoute: typeof AppMyCyberbackersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/marketplace': {
+      id: '/_app/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof AppMarketplaceRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/knowledge-base': {
+      id: '/_app/knowledge-base'
+      path: '/knowledge-base'
+      fullPath: '/knowledge-base'
+      preLoaderRoute: typeof AppKnowledgeBaseRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/contracts': {
+      id: '/_app/contracts'
+      path: '/contracts'
+      fullPath: '/contracts'
+      preLoaderRoute: typeof AppContractsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/billing': {
+      id: '/_app/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof AppBillingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/attendance': {
+      id: '/_app/attendance'
+      path: '/attendance'
+      fullPath: '/attendance'
+      preLoaderRoute: typeof AppAttendanceRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/internal/tickets': {
+      id: '/_app/internal/tickets'
+      path: '/internal/tickets'
+      fullPath: '/internal/tickets'
+      preLoaderRoute: typeof AppInternalTicketsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/internal/recruitment': {
+      id: '/_app/internal/recruitment'
+      path: '/internal/recruitment'
+      fullPath: '/internal/recruitment'
+      preLoaderRoute: typeof AppInternalRecruitmentRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/internal/finance': {
+      id: '/_app/internal/finance'
+      path: '/internal/finance'
+      fullPath: '/internal/finance'
+      preLoaderRoute: typeof AppInternalFinanceRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/internal/executive': {
+      id: '/_app/internal/executive'
+      path: '/internal/executive'
+      fullPath: '/internal/executive'
+      preLoaderRoute: typeof AppInternalExecutiveRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/internal/cyberbackers': {
+      id: '/_app/internal/cyberbackers'
+      path: '/internal/cyberbackers'
+      fullPath: '/internal/cyberbackers'
+      preLoaderRoute: typeof AppInternalCyberbackersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/internal/clients': {
+      id: '/_app/internal/clients'
+      path: '/internal/clients'
+      fullPath: '/internal/clients'
+      preLoaderRoute: typeof AppInternalClientsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/internal/analytics': {
+      id: '/_app/internal/analytics'
+      path: '/internal/analytics'
+      fullPath: '/internal/analytics'
+      preLoaderRoute: typeof AppInternalAnalyticsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/internal/admin': {
+      id: '/_app/internal/admin'
+      path: '/internal/admin'
+      fullPath: '/internal/admin'
+      preLoaderRoute: typeof AppInternalAdminRouteImport
+      parentRoute: typeof AppRoute
     }
   }
 }
 
+interface AppRouteChildren {
+  AppAttendanceRoute: typeof AppAttendanceRoute
+  AppBillingRoute: typeof AppBillingRoute
+  AppContractsRoute: typeof AppContractsRoute
+  AppKnowledgeBaseRoute: typeof AppKnowledgeBaseRoute
+  AppMarketplaceRoute: typeof AppMarketplaceRoute
+  AppMyCyberbackersRoute: typeof AppMyCyberbackersRoute
+  AppPerformanceRoute: typeof AppPerformanceRoute
+  AppRewardsRoute: typeof AppRewardsRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppSupportRoute: typeof AppSupportRoute
+  AppIndexRoute: typeof AppIndexRoute
+  AppInternalAdminRoute: typeof AppInternalAdminRoute
+  AppInternalAnalyticsRoute: typeof AppInternalAnalyticsRoute
+  AppInternalClientsRoute: typeof AppInternalClientsRoute
+  AppInternalCyberbackersRoute: typeof AppInternalCyberbackersRoute
+  AppInternalExecutiveRoute: typeof AppInternalExecutiveRoute
+  AppInternalFinanceRoute: typeof AppInternalFinanceRoute
+  AppInternalRecruitmentRoute: typeof AppInternalRecruitmentRoute
+  AppInternalTicketsRoute: typeof AppInternalTicketsRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAttendanceRoute: AppAttendanceRoute,
+  AppBillingRoute: AppBillingRoute,
+  AppContractsRoute: AppContractsRoute,
+  AppKnowledgeBaseRoute: AppKnowledgeBaseRoute,
+  AppMarketplaceRoute: AppMarketplaceRoute,
+  AppMyCyberbackersRoute: AppMyCyberbackersRoute,
+  AppPerformanceRoute: AppPerformanceRoute,
+  AppRewardsRoute: AppRewardsRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppSupportRoute: AppSupportRoute,
+  AppIndexRoute: AppIndexRoute,
+  AppInternalAdminRoute: AppInternalAdminRoute,
+  AppInternalAnalyticsRoute: AppInternalAnalyticsRoute,
+  AppInternalClientsRoute: AppInternalClientsRoute,
+  AppInternalCyberbackersRoute: AppInternalCyberbackersRoute,
+  AppInternalExecutiveRoute: AppInternalExecutiveRoute,
+  AppInternalFinanceRoute: AppInternalFinanceRoute,
+  AppInternalRecruitmentRoute: AppInternalRecruitmentRoute,
+  AppInternalTicketsRoute: AppInternalTicketsRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
