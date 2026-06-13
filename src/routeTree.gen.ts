@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as AppSupportRouteImport } from './routes/_app.support'
+import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppRewardsRouteImport } from './routes/_app.rewards'
 import { Route as AppPerformanceRouteImport } from './routes/_app.performance'
 import { Route as AppMyCyberbackersRouteImport } from './routes/_app.my-cyberbackers'
@@ -33,6 +34,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const AppSupportRoute = AppSupportRouteImport.update({
   id: '/support',
   path: '/support',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
 const AppRewardsRoute = AppRewardsRouteImport.update({
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/my-cyberbackers': typeof AppMyCyberbackersRoute
   '/performance': typeof AppPerformanceRoute
   '/rewards': typeof AppRewardsRoute
+  '/settings': typeof AppSettingsRoute
   '/support': typeof AppSupportRoute
 }
 export interface FileRoutesByTo {
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/my-cyberbackers': typeof AppMyCyberbackersRoute
   '/performance': typeof AppPerformanceRoute
   '/rewards': typeof AppRewardsRoute
+  '/settings': typeof AppSettingsRoute
   '/support': typeof AppSupportRoute
   '/': typeof AppIndexRoute
 }
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/_app/my-cyberbackers': typeof AppMyCyberbackersRoute
   '/_app/performance': typeof AppPerformanceRoute
   '/_app/rewards': typeof AppRewardsRoute
+  '/_app/settings': typeof AppSettingsRoute
   '/_app/support': typeof AppSupportRoute
   '/_app/': typeof AppIndexRoute
 }
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/my-cyberbackers'
     | '/performance'
     | '/rewards'
+    | '/settings'
     | '/support'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/my-cyberbackers'
     | '/performance'
     | '/rewards'
+    | '/settings'
     | '/support'
     | '/'
   id:
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/_app/my-cyberbackers'
     | '/_app/performance'
     | '/_app/rewards'
+    | '/_app/settings'
     | '/_app/support'
     | '/_app/'
   fileRoutesById: FileRoutesById
@@ -179,6 +191,13 @@ declare module '@tanstack/react-router' {
       path: '/support'
       fullPath: '/support'
       preLoaderRoute: typeof AppSupportRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/rewards': {
@@ -249,6 +268,7 @@ interface AppRouteChildren {
   AppMyCyberbackersRoute: typeof AppMyCyberbackersRoute
   AppPerformanceRoute: typeof AppPerformanceRoute
   AppRewardsRoute: typeof AppRewardsRoute
+  AppSettingsRoute: typeof AppSettingsRoute
   AppSupportRoute: typeof AppSupportRoute
   AppIndexRoute: typeof AppIndexRoute
 }
@@ -262,6 +282,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMyCyberbackersRoute: AppMyCyberbackersRoute,
   AppPerformanceRoute: AppPerformanceRoute,
   AppRewardsRoute: AppRewardsRoute,
+  AppSettingsRoute: AppSettingsRoute,
   AppSupportRoute: AppSupportRoute,
   AppIndexRoute: AppIndexRoute,
 }
