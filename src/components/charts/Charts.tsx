@@ -46,9 +46,6 @@ function ChartShell({ children, height = 280 }: { children: React.ReactElement; 
   );
 }
 
-interface SeriesPoint {
-  [key: string]: string | number;
-}
 
 export function TrendAreaChart({
   data,
