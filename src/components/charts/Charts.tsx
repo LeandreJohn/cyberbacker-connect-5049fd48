@@ -56,7 +56,7 @@ export function TrendAreaChart({
   series,
   height,
 }: {
-  data: SeriesPoint[];
+  data: any[];
   xKey: string;
   series: { key: string; color: string; label: string }[];
   height?: number;
@@ -98,7 +98,7 @@ export function GroupedBarChart({
   series,
   height,
 }: {
-  data: SeriesPoint[];
+  data: any[];
   xKey: string;
   series: { key: string; color: string; label: string }[];
   height?: number;
@@ -124,7 +124,7 @@ export function SimpleLineChart({
   series,
   height,
 }: {
-  data: SeriesPoint[];
+  data: any[];
   xKey: string;
   series: { key: string; color: string; label: string }[];
   height?: number;
@@ -156,7 +156,7 @@ export function DonutChart({
   data,
   height = 280,
 }: {
-  data: { name: string; value: number; color: string }[];
+  data: any[];
   height?: number;
 }) {
   return (
