@@ -21,6 +21,7 @@ import { Route as AppKnowledgeBaseRouteImport } from './routes/_app.knowledge-ba
 import { Route as AppContractsRouteImport } from './routes/_app.contracts'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
 import { Route as AppAttendanceRouteImport } from './routes/_app.attendance'
+import { Route as AppInternalClientsRouteImport } from './routes/_app.internal.clients'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -81,6 +82,11 @@ const AppAttendanceRoute = AppAttendanceRouteImport.update({
   path: '/attendance',
   getParentRoute: () => AppRoute,
 } as any)
+const AppInternalClientsRoute = AppInternalClientsRouteImport.update({
+  id: '/internal/clients',
+  path: '/internal/clients',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/rewards': typeof AppRewardsRoute
   '/settings': typeof AppSettingsRoute
   '/support': typeof AppSupportRoute
+  '/internal/clients': typeof AppInternalClientsRoute
 }
 export interface FileRoutesByTo {
   '/attendance': typeof AppAttendanceRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsRoute
   '/support': typeof AppSupportRoute
   '/': typeof AppIndexRoute
+  '/internal/clients': typeof AppInternalClientsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRoute
   '/_app/support': typeof AppSupportRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/internal/clients': typeof AppInternalClientsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/settings'
     | '/support'
+    | '/internal/clients'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/attendance'
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/support'
     | '/'
+    | '/internal/clients'
   id:
     | '__root__'
     | '/_app'
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/_app/support'
     | '/_app/'
+    | '/_app/internal/clients'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -256,6 +268,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAttendanceRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/internal/clients': {
+      id: '/_app/internal/clients'
+      path: '/internal/clients'
+      fullPath: '/internal/clients'
+      preLoaderRoute: typeof AppInternalClientsRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -271,6 +290,7 @@ interface AppRouteChildren {
   AppSettingsRoute: typeof AppSettingsRoute
   AppSupportRoute: typeof AppSupportRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppInternalClientsRoute: typeof AppInternalClientsRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -285,6 +305,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppSettingsRoute: AppSettingsRoute,
   AppSupportRoute: AppSupportRoute,
   AppIndexRoute: AppIndexRoute,
+  AppInternalClientsRoute: AppInternalClientsRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
