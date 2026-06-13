@@ -13,6 +13,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as AppMyCyberbackersRouteImport } from './routes/_app.my-cyberbackers'
 import { Route as AppMarketplaceRouteImport } from './routes/_app.marketplace'
+import { Route as AppAttendanceRouteImport } from './routes/_app.attendance'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -33,13 +34,20 @@ const AppMarketplaceRoute = AppMarketplaceRouteImport.update({
   path: '/marketplace',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAttendanceRoute = AppAttendanceRouteImport.update({
+  id: '/attendance',
+  path: '/attendance',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/attendance': typeof AppAttendanceRoute
   '/marketplace': typeof AppMarketplaceRoute
   '/my-cyberbackers': typeof AppMyCyberbackersRoute
 }
 export interface FileRoutesByTo {
+  '/attendance': typeof AppAttendanceRoute
   '/marketplace': typeof AppMarketplaceRoute
   '/my-cyberbackers': typeof AppMyCyberbackersRoute
   '/': typeof AppIndexRoute
@@ -47,18 +55,20 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
+  '/_app/attendance': typeof AppAttendanceRoute
   '/_app/marketplace': typeof AppMarketplaceRoute
   '/_app/my-cyberbackers': typeof AppMyCyberbackersRoute
   '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/marketplace' | '/my-cyberbackers'
+  fullPaths: '/' | '/attendance' | '/marketplace' | '/my-cyberbackers'
   fileRoutesByTo: FileRoutesByTo
-  to: '/marketplace' | '/my-cyberbackers' | '/'
+  to: '/attendance' | '/marketplace' | '/my-cyberbackers' | '/'
   id:
     | '__root__'
     | '/_app'
+    | '/_app/attendance'
     | '/_app/marketplace'
     | '/_app/my-cyberbackers'
     | '/_app/'
@@ -98,16 +108,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMarketplaceRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/attendance': {
+      id: '/_app/attendance'
+      path: '/attendance'
+      fullPath: '/attendance'
+      preLoaderRoute: typeof AppAttendanceRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppAttendanceRoute: typeof AppAttendanceRoute
   AppMarketplaceRoute: typeof AppMarketplaceRoute
   AppMyCyberbackersRoute: typeof AppMyCyberbackersRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAttendanceRoute: AppAttendanceRoute,
   AppMarketplaceRoute: AppMarketplaceRoute,
   AppMyCyberbackersRoute: AppMyCyberbackersRoute,
   AppIndexRoute: AppIndexRoute,
@@ -121,3 +140,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
