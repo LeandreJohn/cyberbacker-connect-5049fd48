@@ -26,6 +26,7 @@ import { Route as AppInternalRecruitmentRouteImport } from './routes/_app.intern
 import { Route as AppInternalFinanceRouteImport } from './routes/_app.internal.finance'
 import { Route as AppInternalCyberbackersRouteImport } from './routes/_app.internal.cyberbackers'
 import { Route as AppInternalClientsRouteImport } from './routes/_app.internal.clients'
+import { Route as AppInternalAnalyticsRouteImport } from './routes/_app.internal.analytics'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -111,6 +112,11 @@ const AppInternalClientsRoute = AppInternalClientsRouteImport.update({
   path: '/internal/clients',
   getParentRoute: () => AppRoute,
 } as any)
+const AppInternalAnalyticsRoute = AppInternalAnalyticsRouteImport.update({
+  id: '/internal/analytics',
+  path: '/internal/analytics',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/rewards': typeof AppRewardsRoute
   '/settings': typeof AppSettingsRoute
   '/support': typeof AppSupportRoute
+  '/internal/analytics': typeof AppInternalAnalyticsRoute
   '/internal/clients': typeof AppInternalClientsRoute
   '/internal/cyberbackers': typeof AppInternalCyberbackersRoute
   '/internal/finance': typeof AppInternalFinanceRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsRoute
   '/support': typeof AppSupportRoute
   '/': typeof AppIndexRoute
+  '/internal/analytics': typeof AppInternalAnalyticsRoute
   '/internal/clients': typeof AppInternalClientsRoute
   '/internal/cyberbackers': typeof AppInternalCyberbackersRoute
   '/internal/finance': typeof AppInternalFinanceRoute
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRoute
   '/_app/support': typeof AppSupportRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/internal/analytics': typeof AppInternalAnalyticsRoute
   '/_app/internal/clients': typeof AppInternalClientsRoute
   '/_app/internal/cyberbackers': typeof AppInternalCyberbackersRoute
   '/_app/internal/finance': typeof AppInternalFinanceRoute
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/settings'
     | '/support'
+    | '/internal/analytics'
     | '/internal/clients'
     | '/internal/cyberbackers'
     | '/internal/finance'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/support'
     | '/'
+    | '/internal/analytics'
     | '/internal/clients'
     | '/internal/cyberbackers'
     | '/internal/finance'
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/_app/support'
     | '/_app/'
+    | '/_app/internal/analytics'
     | '/_app/internal/clients'
     | '/_app/internal/cyberbackers'
     | '/_app/internal/finance'
@@ -351,6 +363,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInternalClientsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/internal/analytics': {
+      id: '/_app/internal/analytics'
+      path: '/internal/analytics'
+      fullPath: '/internal/analytics'
+      preLoaderRoute: typeof AppInternalAnalyticsRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -366,6 +385,7 @@ interface AppRouteChildren {
   AppSettingsRoute: typeof AppSettingsRoute
   AppSupportRoute: typeof AppSupportRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppInternalAnalyticsRoute: typeof AppInternalAnalyticsRoute
   AppInternalClientsRoute: typeof AppInternalClientsRoute
   AppInternalCyberbackersRoute: typeof AppInternalCyberbackersRoute
   AppInternalFinanceRoute: typeof AppInternalFinanceRoute
@@ -385,6 +405,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppSettingsRoute: AppSettingsRoute,
   AppSupportRoute: AppSupportRoute,
   AppIndexRoute: AppIndexRoute,
+  AppInternalAnalyticsRoute: AppInternalAnalyticsRoute,
   AppInternalClientsRoute: AppInternalClientsRoute,
   AppInternalCyberbackersRoute: AppInternalCyberbackersRoute,
   AppInternalFinanceRoute: AppInternalFinanceRoute,
