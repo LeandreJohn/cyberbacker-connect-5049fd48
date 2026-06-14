@@ -1,5 +1,6 @@
 import type {
   ActivityItem,
+  Announcement,
   Article,
   AttendanceEntry,
   AuditEntry,
@@ -16,6 +17,7 @@ import type {
   PaymentMethod,
   PerformancePoint,
   PipelineCandidate,
+  Renewal,
   RevenuePoint,
   Reward,
   SystemUser,
