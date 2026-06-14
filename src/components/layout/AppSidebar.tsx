@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 import { navGroups } from "./nav-config";
 import wordmarkDark from "@/assets/cyberbacker-mark-dark.png.asset.json";
-import wordmarkLight from "@/assets/cyberbacker-logo-light.png.asset.json";
+import wordmarkLight from "@/assets/cyberbacker-wordmark-light.png.asset.json";
 
 export function AppSidebar() {
   const { state, setOpenMobile, isMobile } = useSidebar();
