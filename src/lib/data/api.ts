@@ -8,6 +8,7 @@
 import * as mock from "./mock";
 import type {
   ActivityItem,
+  Announcement,
   Article,
   AttendanceEntry,
   AuditEntry,
@@ -24,6 +25,7 @@ import type {
   PaymentMethod,
   PerformancePoint,
   PipelineCandidate,
+  Renewal,
   RevenuePoint,
   Reward,
   SystemUser,
