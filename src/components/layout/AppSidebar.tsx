@@ -40,12 +40,12 @@ export function AppSidebar() {
               <img
                 src={wordmarkDark.url}
                 alt="Cyberbacker"
-                className="h-7 w-auto dark:hidden"
+                className="h-6 w-auto max-w-full object-contain object-left dark:hidden"
               />
               <img
                 src={wordmarkLight.url}
                 alt="Cyberbacker"
-                className="hidden h-9 w-auto dark:block"
+                className="hidden h-8 w-auto max-w-full object-contain object-left dark:block"
               />
             </>
           )}
