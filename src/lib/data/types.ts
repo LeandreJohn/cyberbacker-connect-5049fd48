@@ -61,6 +61,10 @@ export interface Candidate {
   location: string;
   skills: string[];
   matchScore: number; // 0-100
+  industries: string[];
+  valuesScore: number; // 0-100 Values Assessment Score
+  introVideoUrl?: string; // placeholder; empty for now
+  bio: string;
 }
 
 export interface AttendanceEntry {

@@ -1,15 +1,36 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { MapPin, Search, Star } from "lucide-react";
+import { useMemo, useState } from "react";
+import {
+  Calendar,
+  Check,
+  Heart,
+  MapPin,
+  Play,
+  Search,
+  SlidersHorizontal,
+  Star,
+  Users,
+  X,
+} from "lucide-react";
+import { toast } from "sonner";
 
 import { PageHeader } from "@/components/shared/PageHeader";
 import { InitialsAvatar } from "@/components/shared/InitialsAvatar";
 import { StatusBadge, toneFor } from "@/components/shared/StatusBadge";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -17,109 +38,697 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 import { q } from "@/lib/data/queries";
+import type { Candidate } from "@/lib/data/types";
 
 export const Route = createFileRoute("/_app/marketplace")({
   head: () => ({
     meta: [
       { title: "Hiring Marketplace — Cyberbacker" },
-      { name: "description", content: "Browse and hire vetted Cyberbacker talent for your team." },
+      {
+        name: "description",
+        content: "Browse, compare, and hire vetted Cyberbacker talent for your team.",
+      },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(q.candidates()),
   component: Marketplace,
 });
 
+const MAX_COMPARE = 4;
+
 function Marketplace() {
   const { data: candidates } = useSuspenseQuery(q.candidates());
-  const [search, setSearch] = useState("");
-  const [role, setRole] = useState("all");
 
-  const filtered = candidates.filter((c) => {
-    const matchesSearch =
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.title.toLowerCase().includes(search.toLowerCase()) ||
-      c.skills.some((s) => s.toLowerCase().includes(search.toLowerCase()));
-    const matchesRole = role === "all" || c.availability === role;
-    return matchesSearch && matchesRole;
-  });
+  const [search, setSearch] = useState("");
+  const [availability, setAvailability] = useState("all");
+  const [industry, setIndustry] = useState("all");
+  const [minExp, setMinExp] = useState(0);
+  const [minRating, setMinRating] = useState(0);
+  const [minValues, setMinValues] = useState(0);
+  const [sort, setSort] = useState("match");
+
+  const [shortlist, setShortlist] = useState<Set<string>>(new Set());
+  const [compare, setCompare] = useState<string[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [compareOpen, setCompareOpen] = useState(false);
+
+  const industries = useMemo(() => {
+    const set = new Set<string>();
+    candidates.forEach((c) => c.industries.forEach((i) => set.add(i)));
+    return Array.from(set).sort();
+  }, [candidates]);
+
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    const list = candidates.filter((c) => {
+      const matchesSearch =
+        !term ||
+        c.name.toLowerCase().includes(term) ||
+        c.title.toLowerCase().includes(term) ||
+        c.skills.some((s) => s.toLowerCase().includes(term)) ||
+        c.industries.some((i) => i.toLowerCase().includes(term));
+      const matchesAvail = availability === "all" || c.availability === availability;
+      const matchesIndustry = industry === "all" || c.industries.includes(industry);
+      const matchesExp = c.yearsExperience >= minExp;
+      const matchesRating = c.rating >= minRating;
+      const matchesValues = c.valuesScore >= minValues;
+      return (
+        matchesSearch &&
+        matchesAvail &&
+        matchesIndustry &&
+        matchesExp &&
+        matchesRating &&
+        matchesValues
+      );
+    });
+
+    return [...list].sort((a, b) => {
+      switch (sort) {
+        case "rating":
+          return b.rating - a.rating;
+        case "experience":
+          return b.yearsExperience - a.yearsExperience;
+        case "values":
+          return b.valuesScore - a.valuesScore;
+        case "rate":
+          return a.hourlyRate - b.hourlyRate;
+        default:
+          return b.matchScore - a.matchScore;
+      }
+    });
+  }, [candidates, search, availability, industry, minExp, minRating, minValues, sort]);
+
+  const activeFilterCount =
+    (availability !== "all" ? 1 : 0) +
+    (industry !== "all" ? 1 : 0) +
+    (minExp > 0 ? 1 : 0) +
+    (minRating > 0 ? 1 : 0) +
+    (minValues > 0 ? 1 : 0);
+
+  const clearFilters = () => {
+    setAvailability("all");
+    setIndustry("all");
+    setMinExp(0);
+    setMinRating(0);
+    setMinValues(0);
+  };
+
+  const toggleShortlist = (c: Candidate) => {
+    setShortlist((prev) => {
+      const next = new Set(prev);
+      if (next.has(c.id)) {
+        next.delete(c.id);
+        toast(`Removed ${c.name} from shortlist`);
+      } else {
+        next.add(c.id);
+        toast.success(`${c.name} added to shortlist`);
+      }
+      return next;
+    });
+  };
+
+  const toggleCompare = (c: Candidate) => {
+    setCompare((prev) => {
+      if (prev.includes(c.id)) return prev.filter((id) => id !== c.id);
+      if (prev.length >= MAX_COMPARE) {
+        toast.error(`You can compare up to ${MAX_COMPARE} candidates`);
+        return prev;
+      }
+      return [...prev, c.id];
+    });
+  };
+
+  const scheduleInterview = (c: Candidate) =>
+    toast.success(`Interview request sent for ${c.name}`, {
+      description: "Our team will confirm a time within 24 hours.",
+    });
+
+  const activeCandidate = candidates.find((c) => c.id === activeId) ?? null;
+  const compareCandidates = compare
+    .map((id) => candidates.find((c) => c.id === id))
+    .filter((c): c is Candidate => Boolean(c));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24">
       <PageHeader
         title="Hiring Marketplace"
         description="Vetted, ready-to-start Cyberbacker talent matched to your needs"
       />
 
+      {/* Toolbar */}
       <Card>
-        <CardContent className="flex flex-col gap-3 p-4 sm:flex-row">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search by name, role, or skill…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
+        <CardContent className="space-y-3 p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="relative w-full min-w-0 lg:flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search by name, role, skill, or industry…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-9"
+              />
+            </div>
+
+            <Select value={sort} onValueChange={setSort}>
+              <SelectTrigger className="w-full shrink-0 lg:w-48">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="match">Best match</SelectItem>
+                <SelectItem value="rating">Highest rating</SelectItem>
+                <SelectItem value="values">Values score</SelectItem>
+                <SelectItem value="experience">Most experience</SelectItem>
+                <SelectItem value="rate">Lowest rate</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full shrink-0 lg:w-auto">
+                  <SlidersHorizontal className="mr-2 h-4 w-4" />
+                  Advanced filters
+                  {activeFilterCount > 0 && (
+                    <Badge className="ml-2 h-5 min-w-5 justify-center px-1.5">
+                      {activeFilterCount}
+                    </Badge>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-80 space-y-4">
+                <div className="space-y-1.5">
+                  <p className="text-sm font-medium">Availability</p>
+                  <Select value={availability} onValueChange={setAvailability}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All availability</SelectItem>
+                      <SelectItem value="available">Available now</SelectItem>
+                      <SelectItem value="interviewing">Interviewing</SelectItem>
+                      <SelectItem value="hired">Recently hired</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <p className="text-sm font-medium">Industry</p>
+                  <Select value={industry} onValueChange={setIndustry}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All industries</SelectItem>
+                      {industries.map((i) => (
+                        <SelectItem key={i} value={i}>
+                          {i}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm font-medium">
+                    <span>Min. experience</span>
+                    <span className="text-muted-foreground">{minExp} yrs</span>
+                  </div>
+                  <Slider
+                    value={[minExp]}
+                    onValueChange={([v]) => setMinExp(v)}
+                    max={10}
+                    step={1}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm font-medium">
+                    <span>Min. rating</span>
+                    <span className="text-muted-foreground">{minRating.toFixed(1)}★</span>
+                  </div>
+                  <Slider
+                    value={[minRating]}
+                    onValueChange={([v]) => setMinRating(v)}
+                    max={5}
+                    step={0.5}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm font-medium">
+                    <span>Min. values score</span>
+                    <span className="text-muted-foreground">{minValues}</span>
+                  </div>
+                  <Slider
+                    value={[minValues]}
+                    onValueChange={([v]) => setMinValues(v)}
+                    max={100}
+                    step={5}
+                  />
+                </div>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full"
+                  onClick={clearFilters}
+                >
+                  Clear filters
+                </Button>
+              </PopoverContent>
+            </Popover>
           </div>
-          <Select value={role} onValueChange={setRole}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Availability" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All availability</SelectItem>
-              <SelectItem value="available">Available now</SelectItem>
-              <SelectItem value="interviewing">Interviewing</SelectItem>
-              <SelectItem value="hired">Recently hired</SelectItem>
-            </SelectContent>
-          </Select>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
+            <span>
+              <span className="font-semibold text-foreground">{filtered.length}</span>{" "}
+              candidate{filtered.length === 1 ? "" : "s"} found
+              {shortlist.size > 0 && (
+                <> · {shortlist.size} shortlisted</>
+              )}
+            </span>
+            {activeFilterCount > 0 && (
+              <Button variant="ghost" size="sm" className="h-7 px-2" onClick={clearFilters}>
+                <X className="mr-1 h-3.5 w-3.5" /> Clear filters
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {filtered.map((c) => (
-          <Card key={c.id} className="shadow-card">
-            <CardHeader className="flex-row items-start gap-3 space-y-0">
-              <InitialsAvatar initials={c.initials} size="lg" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold">{c.name}</p>
-                <p className="truncate text-sm text-muted-foreground">{c.title}</p>
-                <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="h-3 w-3" /> {c.location}
-                </p>
+      {/* Candidate grid */}
+      {filtered.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center gap-2 py-16 text-center">
+            <Users className="h-10 w-10 text-muted-foreground" />
+            <p className="font-medium">No candidates match your filters</p>
+            <p className="text-sm text-muted-foreground">
+              Try widening your search or clearing some filters.
+            </p>
+            <Button variant="outline" size="sm" className="mt-2" onClick={clearFilters}>
+              Clear filters
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((c) => {
+            const isShortlisted = shortlist.has(c.id);
+            const inCompare = compare.includes(c.id);
+            return (
+              <Card key={c.id} className="flex flex-col shadow-card">
+                <CardHeader className="flex-row items-start gap-3 space-y-0">
+                  <InitialsAvatar initials={c.initials} size="lg" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold">{c.name}</p>
+                    <p className="truncate text-sm text-muted-foreground">{c.title}</p>
+                    <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                      <MapPin className="h-3 w-3" /> {c.location}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => toggleShortlist(c)}
+                    aria-label={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
+                    className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+                  >
+                    <Heart
+                      className={cn("h-4 w-4", isShortlisted && "fill-primary text-primary")}
+                    />
+                  </button>
+                </CardHeader>
+
+                <CardContent className="flex-1 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
+                      {c.matchScore}% match
+                    </Badge>
+                    <StatusBadge label={c.availability} tone={toneFor(c.availability)} />
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5">
+                    {c.skills.slice(0, 4).map((s) => (
+                      <Badge key={s} variant="secondary" className="font-normal">
+                        {s}
+                      </Badge>
+                    ))}
+                    {c.skills.length > 4 && (
+                      <Badge variant="outline" className="font-normal">
+                        +{c.skills.length - 4}
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+                      <span>Values Assessment</span>
+                      <span className="font-medium text-foreground">{c.valuesScore}</span>
+                    </div>
+                    <Progress value={c.valuesScore} className="h-1.5" />
+                  </div>
+
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-1 font-medium">
+                      <Star className="h-4 w-4 fill-warning text-warning" /> {c.rating}
+                    </span>
+                    <span className="text-muted-foreground">{c.yearsExperience} yrs exp</span>
+                    <span className="font-semibold">${c.hourlyRate}/hr</span>
+                  </div>
+
+                  <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+                    <Checkbox
+                      checked={inCompare}
+                      onCheckedChange={() => toggleCompare(c)}
+                    />
+                    Compare
+                  </label>
+                </CardContent>
+
+                <CardFooter className="flex-col gap-2">
+                  <Button className="w-full" onClick={() => setActiveId(c.id)}>
+                    View Profile
+                  </Button>
+                  <div className="flex w-full gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => scheduleInterview(c)}
+                      disabled={c.availability === "hired"}
+                    >
+                      <Calendar className="mr-1.5 h-3.5 w-3.5" /> Interview
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => toggleShortlist(c)}
+                    >
+                      <Heart
+                        className={cn(
+                          "mr-1.5 h-3.5 w-3.5",
+                          isShortlisted && "fill-primary text-primary",
+                        )}
+                      />
+                      {isShortlisted ? "Saved" : "Shortlist"}
+                    </Button>
+                  </div>
+                </CardFooter>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Detail side panel */}
+      <Sheet open={!!activeCandidate} onOpenChange={(o) => !o && setActiveId(null)}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
+          {activeCandidate && (
+            <>
+              <SheetHeader className="space-y-0 text-left">
+                <SheetTitle className="sr-only">{activeCandidate.name} profile</SheetTitle>
+              </SheetHeader>
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <InitialsAvatar initials={activeCandidate.initials} size="lg" />
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-lg font-semibold">{activeCandidate.name}</h2>
+                    <p className="text-sm text-muted-foreground">{activeCandidate.title}</p>
+                    <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                      <MapPin className="h-3 w-3" /> {activeCandidate.location}
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
+                        {activeCandidate.matchScore}% match
+                      </Badge>
+                      <StatusBadge
+                        label={activeCandidate.availability}
+                        tone={toneFor(activeCandidate.availability)}
+                      />
+                      <span className="flex items-center gap-1 text-sm font-medium">
+                        <Star className="h-4 w-4 fill-warning text-warning" />
+                        {activeCandidate.rating}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Intro video placeholder */}
+                <div className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed bg-gradient-powder text-powder-foreground">
+                  <div className="grid h-12 w-12 place-items-center rounded-full bg-background/30">
+                    <Play className="h-5 w-5" />
+                  </div>
+                  <p className="text-sm font-medium">Intro video coming soon</p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <Stat label="Experience" value={`${activeCandidate.yearsExperience} yrs`} />
+                  <Stat label="Values Score" value={String(activeCandidate.valuesScore)} />
+                  <Stat label="Rate" value={`$${activeCandidate.hourlyRate}/hr`} />
+                </div>
+
+                <div>
+                  <div className="mb-1 flex items-center justify-between text-sm">
+                    <span className="font-medium">Values Assessment Score</span>
+                    <span className="text-muted-foreground">
+                      {activeCandidate.valuesScore}/100
+                    </span>
+                  </div>
+                  <Progress value={activeCandidate.valuesScore} className="h-2" />
+                </div>
+
+                <Separator />
+
+                <Section title="About">
+                  <p className="text-sm text-muted-foreground">{activeCandidate.bio}</p>
+                </Section>
+
+                <Section title="Skills">
+                  <div className="flex flex-wrap gap-1.5">
+                    {activeCandidate.skills.map((s) => (
+                      <Badge key={s} variant="secondary" className="font-normal">
+                        {s}
+                      </Badge>
+                    ))}
+                  </div>
+                </Section>
+
+                <Section title="Industry experience">
+                  <div className="flex flex-wrap gap-1.5">
+                    {activeCandidate.industries.map((i) => (
+                      <Badge key={i} variant="outline" className="font-normal">
+                        {i}
+                      </Badge>
+                    ))}
+                  </div>
+                </Section>
+
+                <div className="flex flex-col gap-2 pb-2 sm:flex-row">
+                  <Button
+                    className="flex-1"
+                    onClick={() => scheduleInterview(activeCandidate)}
+                    disabled={activeCandidate.availability === "hired"}
+                  >
+                    <Calendar className="mr-1.5 h-4 w-4" /> Schedule Interview
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => toggleShortlist(activeCandidate)}
+                  >
+                    <Heart
+                      className={cn(
+                        "mr-1.5 h-4 w-4",
+                        shortlist.has(activeCandidate.id) && "fill-primary text-primary",
+                      )}
+                    />
+                    {shortlist.has(activeCandidate.id) ? "Shortlisted" : "Shortlist"}
+                  </Button>
+                </div>
               </div>
-              <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
-                {c.matchScore}% match
-              </Badge>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex flex-wrap gap-1.5">
-                {c.skills.map((s) => (
-                  <Badge key={s} variant="secondary" className="font-normal">
-                    {s}
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Comparison bar */}
+      {compare.length > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="shrink-0 text-sm font-medium">
+                {compare.length} selected
+              </span>
+              <div className="hidden gap-2 sm:flex">
+                {compareCandidates.map((c) => (
+                  <Badge key={c.id} variant="secondary" className="gap-1 font-normal">
+                    {c.name}
+                    <button
+                      type="button"
+                      onClick={() => toggleCompare(c)}
+                      aria-label={`Remove ${c.name}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
                   </Badge>
                 ))}
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="flex items-center gap-1 font-medium">
-                  <Star className="h-4 w-4 fill-warning text-warning" /> {c.rating}
-                </span>
-                <span className="text-muted-foreground">{c.yearsExperience} yrs exp</span>
-                <span className="font-semibold">${c.hourlyRate}/hr</span>
-              </div>
-              <StatusBadge label={c.availability} tone={toneFor(c.availability)} />
-            </CardContent>
-            <CardFooter className="gap-2">
-              <Button className="flex-1" disabled={c.availability === "hired"}>
-                {c.availability === "hired" ? "Hired" : "Request interview"}
+            </div>
+            <div className="flex shrink-0 gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setCompare([])}>
+                Clear
               </Button>
-              <Button variant="outline" size="sm">
-                Profile
+              <Button size="sm" disabled={compare.length < 2} onClick={() => setCompareOpen(true)}>
+                Compare ({compare.length})
               </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Comparison dialog */}
+      <Dialog open={compareOpen} onOpenChange={setCompareOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Compare candidates</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[70vh]">
+            <table className="w-full text-sm">
+              <thead>
+                <tr>
+                  <th className="w-32 p-2 text-left font-medium text-muted-foreground">
+                    Attribute
+                  </th>
+                  {compareCandidates.map((c) => (
+                    <th key={c.id} className="min-w-44 p-2 text-left align-bottom">
+                      <div className="flex items-center gap-2">
+                        <InitialsAvatar initials={c.initials} />
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold">{c.name}</p>
+                          <p className="truncate text-xs font-normal text-muted-foreground">
+                            {c.title}
+                          </p>
+                        </div>
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="[&_td]:border-t [&_td]:p-2 [&_td]:align-top">
+                <CompareRow label="Match score" cells={compareCandidates.map((c) => `${c.matchScore}%`)} />
+                <CompareRow
+                  label="Availability"
+                  cells={compareCandidates.map((c) => (
+                    <StatusBadge key={c.id} label={c.availability} tone={toneFor(c.availability)} />
+                  ))}
+                />
+                <CompareRow label="Experience" cells={compareCandidates.map((c) => `${c.yearsExperience} yrs`)} />
+                <CompareRow label="Rating" cells={compareCandidates.map((c) => `${c.rating} ★`)} />
+                <CompareRow label="Values score" cells={compareCandidates.map((c) => `${c.valuesScore}/100`)} />
+                <CompareRow label="Rate" cells={compareCandidates.map((c) => `$${c.hourlyRate}/hr`)} />
+                <CompareRow label="Location" cells={compareCandidates.map((c) => c.location)} />
+                <CompareRow
+                  label="Skills"
+                  cells={compareCandidates.map((c) => (
+                    <div key={c.id} className="flex flex-wrap gap-1">
+                      {c.skills.map((s) => (
+                        <Badge key={s} variant="secondary" className="font-normal">
+                          {s}
+                        </Badge>
+                      ))}
+                    </div>
+                  ))}
+                />
+                <CompareRow
+                  label="Industries"
+                  cells={compareCandidates.map((c) => (
+                    <div key={c.id} className="flex flex-wrap gap-1">
+                      {c.industries.map((i) => (
+                        <Badge key={i} variant="outline" className="font-normal">
+                          {i}
+                        </Badge>
+                      ))}
+                    </div>
+                  ))}
+                />
+                <tr>
+                  <td className="border-t p-2" />
+                  {compareCandidates.map((c) => (
+                    <td key={c.id} className="border-t p-2">
+                      <Button
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          setCompareOpen(false);
+                          setActiveId(c.id);
+                        }}
+                      >
+                        View Profile
+                      </Button>
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border bg-muted/30 p-3">
+      <p className="text-base font-semibold">{value}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-2">
+      <h3 className="flex items-center gap-1.5 text-sm font-semibold">
+        <Check className="h-3.5 w-3.5 text-primary" /> {title}
+      </h3>
+      {children}
+    </div>
+  );
+}
+
+function CompareRow({
+  label,
+  cells,
+}: {
+  label: string;
+  cells: React.ReactNode[];
+}) {
+  return (
+    <tr>
+      <td className="font-medium text-muted-foreground">{label}</td>
+      {cells.map((cell, i) => (
+        <td key={i}>{cell}</td>
+      ))}
+    </tr>
   );
 }
