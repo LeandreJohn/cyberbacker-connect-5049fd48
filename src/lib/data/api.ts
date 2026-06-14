@@ -8,6 +8,7 @@
 import * as mock from "./mock";
 import type {
   ActivityItem,
+  Announcement,
   Article,
   AttendanceEntry,
   AuditEntry,
@@ -24,6 +25,7 @@ import type {
   PaymentMethod,
   PerformancePoint,
   PipelineCandidate,
+  Renewal,
   RevenuePoint,
   Reward,
   SystemUser,
@@ -72,3 +74,5 @@ export const getAcquisitionFunnel = (): Promise<FunnelStep[]> =>
 export const getSystemUsers = (): Promise<SystemUser[]> => mockResponse(mock.systemUsers);
 export const getAuditLog = (): Promise<AuditEntry[]> => mockResponse(mock.auditLog);
 export const getNotifications = (): Promise<Notification[]> => mockResponse(mock.notifications);
+export const getRenewals = (): Promise<Renewal[]> => mockResponse(mock.renewals);
+export const getAnnouncements = (): Promise<Announcement[]> => mockResponse(mock.announcements);

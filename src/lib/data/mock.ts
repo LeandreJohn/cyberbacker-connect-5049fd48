@@ -1,5 +1,6 @@
 import type {
   ActivityItem,
+  Announcement,
   Article,
   AttendanceEntry,
   AuditEntry,
@@ -16,6 +17,7 @@ import type {
   PaymentMethod,
   PerformancePoint,
   PipelineCandidate,
+  Renewal,
   RevenuePoint,
   Reward,
   SystemUser,
@@ -193,4 +195,18 @@ export const notifications: Notification[] = [
   { id: "n3", title: "Ticket update", description: "Support replied to 'Cannot access timesheet export'.", time: "4h ago", type: "ticket", read: false },
   { id: "n4", title: "Weekly report ready", description: "Maya Lin submitted her weekly report.", time: "1d ago", type: "info", read: true },
   { id: "n5", title: "Onboarding complete", description: "Priya Nair finished onboarding.", time: "2d ago", type: "success", read: true },
+];
+
+export const renewals: Renewal[] = [
+  { id: "rn1", name: "Executive Assistant — Maya Lin", plan: "Full Time", renewalDate: "2026-06-22", amount: 2240, daysUntil: 8, status: "due_soon" },
+  { id: "rn2", name: "Scale Plan Subscription", plan: "Scale", renewalDate: "2026-07-01", amount: 9680, daysUntil: 17, status: "auto_renew" },
+  { id: "rn3", name: "Bookkeeper — Diego Santos", plan: "Full Time", renewalDate: "2026-07-12", amount: 2560, daysUntil: 28, status: "upcoming" },
+  { id: "rn4", name: "Priority Support Pass", plan: "Add-on", renewalDate: "2026-07-19", amount: 199, daysUntil: 35, status: "upcoming" },
+];
+
+export const announcements: Announcement[] = [
+  { id: "an1", title: "New: AI-powered weekly summaries", body: "Your Cyberbackers' weekly reports now include an AI digest highlighting wins, blockers, and next steps.", date: "Jun 13, 2026", tag: "Product", author: "Cyberbacker Team" },
+  { id: "an2", title: "Scheduled maintenance — Jun 16", body: "The platform will undergo maintenance on Sunday 2:00–3:00 AM PHT. Time tracking continues uninterrupted.", date: "Jun 11, 2026", tag: "Maintenance", author: "Operations" },
+  { id: "an3", title: "Refer a business, earn $250", body: "Our referral program is now live. Share your code and earn account credit when a referral signs.", date: "Jun 09, 2026", tag: "Community", author: "Growth Team" },
+  { id: "an4", title: "Updated data processing policy", body: "We've refreshed our DPA to align with the latest regional privacy standards. No action needed.", date: "Jun 05, 2026", tag: "Policy", author: "Compliance" },
 ];

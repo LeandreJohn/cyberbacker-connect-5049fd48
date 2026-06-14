@@ -203,6 +203,31 @@ export interface ActivityItem {
   time: string;
 }
 
+export interface Renewal {
+  id: string;
+  name: string;
+  plan: string;
+  renewalDate: string;
+  amount: number;
+  daysUntil: number;
+  status: "upcoming" | "due_soon" | "auto_renew";
+}
+
+export interface Announcement {
+  id: string;
+  title: string;
+  body: string;
+  date: string;
+  tag: "Product" | "Maintenance" | "Community" | "Policy";
+  author: string;
+}
+
+export interface AttendanceSummaryPoint {
+  name: string;
+  value: number;
+  color: string;
+}
+
 export interface RevenuePoint {
   month: string;
   revenue: number;

@@ -29,4 +29,7 @@ export const q = {
   auditLog: () => queryOptions({ queryKey: ["auditLog"], queryFn: api.getAuditLog }),
   notifications: () =>
     queryOptions({ queryKey: ["notifications"], queryFn: api.getNotifications }),
+  renewals: () => queryOptions({ queryKey: ["renewals"], queryFn: api.getRenewals }),
+  announcements: () =>
+    queryOptions({ queryKey: ["announcements"], queryFn: api.getAnnouncements }),
 };
