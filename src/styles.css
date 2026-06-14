@@ -244,3 +244,11 @@
 @utility shadow-card {
   box-shadow: var(--shadow-card);
 }
+
+@utility bg-gradient-powder {
+  background-image: var(--gradient-powder);
+}
+
+@utility bg-gradient-banner {
+  background-image: var(--gradient-banner);
+}
