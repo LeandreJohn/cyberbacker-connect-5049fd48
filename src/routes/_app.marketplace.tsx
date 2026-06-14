@@ -224,7 +224,7 @@ function Marketplace() {
 
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full lg:w-auto">
+                <Button variant="outline" className="w-full shrink-0 lg:w-auto">
                   <SlidersHorizontal className="mr-2 h-4 w-4" />
                   Advanced filters
                   {activeFilterCount > 0 && (
