@@ -1,72 +1,60 @@
-## Cyberbacker Client Success Platform
+# Client Dashboard — Build Plan
 
-A modern, enterprise-grade SaaS frontend (Stripe/Salesforce-style "Trust Blue" aesthetic) with all 19 navigation sections built as full UI, dark mode, and a typed mock-data layer designed to be swapped for FastAPI REST endpoints with zero component changes. No backend logic, no auth gating — every section is reachable from one app shell.
+Rebuild the home page (`src/routes/_app.index.tsx`) into a premium SaaS Client Dashboard, refresh the palette toward **powder blue**, and bring in the real **Cyberbacker logo**.
 
-### Design system
-- **Palette (Trust Blue):** primary `#2563EB`, ink/navy `#0F172A`, surface `#F1F5F9`, success accent `#10B981`. Defined as semantic oklch tokens in `src/styles.css` for both light and dark mode.
-- **Typography:** Geist/`space-grotesk-dm-sans` style pairing — crisp display headings + clean body. Loaded via `<link>` in `__root.tsx`.
-- **Feel:** medium radius (10px), soft layered shadows, generous spacing, data-dense but breathable cards. All colors via design tokens — no hardcoded color classes.
+## 1. Powder-blue theme refresh
+Update tokens in `src/styles.css` to soften the current deep "Trust Blue" into an airy powder-blue system that matches the logo (powder-blue globe + navy ink):
+- Keep a readable navy ink for text and primary buttons (logo's dark blue).
+- Introduce powder-blue surfaces: lighter app background with a faint blue tint, softer card borders, and a new `--powder` accent token plus a `--gradient-powder` for banners/cards.
+- Refine chart colors so chart-1 reads as the powder/navy blue family, keeping success/warning/info intact.
+- Verify both light and dark mode contrast.
 
-### App shell (used by every page)
-- Collapsible **sidebar** (shadcn sidebar) with two grouped sections: CLIENT FEATURES and INTERNAL FEATURES, active-route highlighting, icon mini-collapse.
-- **Top navigation bar:** global search, dark-mode toggle, **notification center** (popover with unread badge + list), and **user profile menu** (dropdown: profile, settings, sign out — visual only).
-- Fully responsive: sidebar becomes an off-canvas drawer on mobile; header collapses to grid layout per responsive rules.
+## 2. Brand logo asset
+- Register the uploaded logo as a CDN asset (powder-on-dark version `CB-with-Tagline-White-M.png` for the dark sidebar/banner, and the black version for light surfaces) via `lovable-assets`, writing `.asset.json` pointers under `src/assets/`.
+- Use the logo in the new welcome banner; optionally swap the placeholder `Hexagon` mark in `AppSidebar` for the globe logo.
 
-### Navigation & routes (TanStack file-based routing under `src/routes/`)
+## 3. Dashboard data layer additions
+Extend the typed mock layer (`types.ts`, `mock.ts`, `api.ts`, `queries.ts`) with new client-dashboard data, mirroring future FastAPI endpoints:
+- `renewals` (upcoming contract/plan renewals: name, plan, renewalDate, amount, daysUntil, status).
+- `announcements` (recent announcements: title, body, date, tag, author).
+- An attendance-summary derivation (present / late / leave / absent counts for the donut) computed from existing `attendance`, plus a small weekly-hours series for a bar chart.
+Existing `dashboardStats`, `activityFeed`, `cyberbackers`, `performanceTrend`, `tickets` are reused.
 
-**Client features**
+## 4. Dashboard layout (`_app.index.tsx`)
+Top-to-bottom, responsive grid, using existing shared components (`PageHeader`, `StatCard`, `StatusBadge`, `InitialsAvatar`) and charts (`TrendAreaChart`, `GroupedBarChart`, `DonutChart`):
+
+```text
+┌────────────────────────────────────────────────────────┐
+│ Welcome banner (powder gradient + logo, greeting, CTA)  │
+├──────────┬──────────┬──────────┬────────────────────────┤
+│ KPI:     │ KPI:     │ KPI:     │ KPI:                   │
+│ Active   │ Attend.  │ Open     │ Upcoming               │
+│ Cyberbk. │ rate     │ tickets  │ renewals               │
+├─────────────────────────────┬──────────────────────────┤
+│ Team performance (area)     │ Quick actions (4 buttons) │
+├─────────────────────────────┼──────────────────────────┤
+│ Attendance summary (donut)  │ Recent activity feed      │
+├─────────────────────────────┴──────────────────────────┤
+│ Open support tickets (list) │ Upcoming renewals (list)  │
+├─────────────────────────────────────────────────────────┤
+│ Recent announcements (cards)                            │
+└─────────────────────────────────────────────────────────┘
 ```
-/                       Dashboard (KPIs, activity, quick actions)
-/my-cyberbackers        Roster cards, status, hours, contact
-/marketplace            Hiring marketplace — candidate grid + filters
-/attendance             Attendance calendar + time logs table
-/performance            Performance reports w/ charts
-/support                Support Center — ticket list + create
-/knowledge-base         KB categories + articles + search
-/contracts              Contract list, status, signing state
-/billing                Invoices, payment methods, plan
-/rewards                Rewards & coupons grid
-/settings               Profile, notifications, preferences, theme
-```
 
-**Internal features**
-```
-/internal/clients       Client Management table + detail drawer
-/internal/cyberbackers  Cyberbacker Management roster + status
-/internal/recruitment   Recruitment Pipeline (kanban stages)
-/internal/tickets       Support Ticket Management queue + SLA
-/internal/finance       Finance Dashboard (revenue, payouts, AR)
-/internal/analytics     Analytics Dashboard (charts, funnels)
-/internal/executive     Executive Dashboard (high-level KPIs)
-/internal/admin         System Administration (users, roles, audit, settings)
-```
+Sections:
+- **Welcome banner** — powder-blue gradient card with logo, personalized greeting, date, and primary "Hire a Cyberbacker" CTA.
+- **KPI cards** — Active Cyberbackers, Attendance rate (this week), Open support tickets, Upcoming renewals count, each with trend deltas.
+- **Charts** — Team performance area chart (productivity/satisfaction) + Attendance summary donut (present/late/leave/absent).
+- **Quick actions** — 4 buttons: Hire a Cyberbacker (`/marketplace`), Submit Support Ticket (`/support`), View Attendance (`/attendance`), Download Reports (`/performance`, triggers a sample report toast).
+- **Open support tickets** — compact list of open/urgent tickets with priority + SLA badges, link to `/support`.
+- **Upcoming renewals** — list of plan/contract renewals with date, amount, days-until badge, link to `/contracts`.
+- **Recent activity feed** — reuse existing activity data.
+- **Recent announcements** — card list from new announcements data.
 
-Each route gets its own `head()` metadata (title + description).
+All data via TanStack Query (`ensureQueryData` in loader + `useSuspenseQuery`), keeping the existing pattern.
 
-### Reusable components (`src/components/`)
-- `layout/` — `AppSidebar`, `Topbar`, `NotificationCenter`, `UserMenu`, `ThemeToggle`, `PageHeader`.
-- `shared/` — `StatCard` (KPI tile w/ trend), `DataTable` (sortable shadcn table wrapper), `StatusBadge`, `EmptyState`, `SectionCard`, `FilterBar`, `Avatar` helpers.
-- `charts/` — Recharts wrappers (line/area/bar/donut) themed to tokens, for performance/finance/analytics/executive pages.
-- Roles (Client, Recruiter, Facilitator, Support Agent, Finance Team, Administrator, Executive) modeled as a typed enum/union in the data layer and shown in mock user/staff records — used for display, not access control in this version.
-
-### Mock data + API-ready layer (`src/lib/data/`)
-- `types.ts` — TypeScript interfaces for every entity: `User`, `Role`, `Cyberbacker`, `Candidate`, `AttendanceEntry`, `PerformanceReport`, `Ticket`, `Article`, `Contract`, `Invoice`, `Reward`, `Client`, `PipelineStage`, `FinanceMetric`, `AnalyticsMetric`, `Notification`, etc.
-- `mock/*.ts` — realistic placeholder datasets per entity.
-- `api.ts` — async service functions (e.g. `getCyberbackers()`, `getTickets()`) that currently return mock data via a small delay, but mirror the future FastAPI REST shape. A single `API_BASE` constant + commented `fetch` stubs make swapping to real endpoints a drop-in change.
-- Pages consume data through **TanStack Query** (`useQuery` against these service functions) so the move to live APIs is seamless.
-
-### Technical notes
-- Stack: TanStack Start + React 19 + Tailwind v4 + shadcn (already in project). No backend/Lovable Cloud enabled — purely frontend per request.
-- Dark mode via `.dark` class toggle persisted to `localStorage`, applied on the html element.
-- All data fetching goes through the service layer so no component imports mock data directly.
-- Strict-build safe: every imported file/component created before it's referenced.
-
-### Build order
-1. Theme tokens + fonts + dark-mode toggle infrastructure.
-2. Data layer (types, mock data, service functions, Query setup).
-3. App shell (sidebar, topbar, notifications, profile menu, responsive layout) + root layout route.
-4. Client feature pages (11).
-5. Internal feature pages (8).
-6. Charts, polish, responsive QA, slop-sweep.
-
-This is a large build; I'll implement it section by section so the app stays runnable throughout.
+## Technical notes
+- No backend; everything stays in the typed mock layer, swappable for FastAPI later.
+- Only semantic tokens for colors (no hardcoded hex in components).
+- Keep `errorComponent`/`notFoundComponent` conventions and SSR-safe chart rendering.
+- "Download Reports" uses a toast (sonner) to simulate export — no real file generation.
