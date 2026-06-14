@@ -1,5 +1,4 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Hexagon } from "lucide-react";
 
 import {
   Sidebar,
@@ -14,6 +13,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { navGroups } from "./nav-config";
+import wordmarkDark from "@/assets/cyberbacker-mark-dark.png.asset.json";
+import wordmarkLight from "@/assets/cyberbacker-logo-light.png.asset.json";
 
 export function AppSidebar() {
   const { state, setOpenMobile, isMobile } = useSidebar();
@@ -30,16 +31,23 @@ export function AppSidebar() {
           onClick={() => isMobile && setOpenMobile(false)}
           className="flex items-center gap-2.5 px-1 py-1.5"
         >
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
-            <Hexagon className="h-5 w-5" />
-          </span>
-          {!collapsed && (
-            <span className="flex min-w-0 flex-col leading-tight">
-              <span className="truncate text-sm font-bold text-sidebar-foreground">
-                Cyberbacker
-              </span>
-              <span className="truncate text-xs text-muted-foreground">Client Success</span>
+          {collapsed ? (
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-powder text-sm font-bold text-powder-foreground">
+              CB
             </span>
+          ) : (
+            <>
+              <img
+                src={wordmarkDark.url}
+                alt="Cyberbacker"
+                className="h-7 w-auto dark:hidden"
+              />
+              <img
+                src={wordmarkLight.url}
+                alt="Cyberbacker"
+                className="hidden h-9 w-auto dark:block"
+              />
+            </>
           )}
         </Link>
       </SidebarHeader>
