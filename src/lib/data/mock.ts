@@ -48,13 +48,156 @@ export const activityFeed: ActivityItem[] = [
   { id: "a5", actor: "Priya Nair", initials: "PN", action: "completed onboarding for", target: "Social Media Management", time: "1d ago" },
 ];
 
+function weekdaySchedule(start: string, end: string, hours: number) {
+  return ["Mon", "Tue", "Wed", "Thu", "Fri"].map((day) => ({ day, start, end, hours }));
+}
+
+// Build ~12 days of attendance history with mostly-present patterns.
+function attendanceHistory(
+  seed: number,
+  baseHours: number,
+): { date: string; status: "present" | "late" | "absent" | "leave"; hours: number }[] {
+  const out: { date: string; status: "present" | "late" | "absent" | "leave"; hours: number }[] = [];
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(2026, 5, 12 - i);
+    const day = d.getDay();
+    if (day === 0 || day === 6) continue; // skip weekends
+    const mix = (seed + i) % 9;
+    let status: "present" | "late" | "absent" | "leave" = "present";
+    let hours = baseHours;
+    if (mix === 2) {
+      status = "late";
+      hours = baseHours;
+    } else if (mix === 5) {
+      status = "leave";
+      hours = 0;
+    } else if (mix === 7) {
+      status = "absent";
+      hours = 0;
+    }
+    out.push({ date: d.toISOString().slice(0, 10), status, hours });
+  }
+  return out;
+}
+
 export const cyberbackers: Cyberbacker[] = [
-  { id: "cb1", name: "Maya Lin", initials: "ML", role: "Executive Assistant", status: "active", hoursThisWeek: 38, weeklyCapacity: 40, performance: 96, startedOn: "2024-08-12", email: "maya.lin@cyberbacker.com", timezone: "PHT (GMT+8)", skills: ["Calendar", "Inbox", "Travel"] },
-  { id: "cb2", name: "Diego Santos", initials: "DS", role: "Bookkeeper", status: "active", hoursThisWeek: 40, weeklyCapacity: 40, performance: 92, startedOn: "2024-05-03", email: "diego.santos@cyberbacker.com", timezone: "PHT (GMT+8)", skills: ["QuickBooks", "Payroll", "AR/AP"] },
-  { id: "cb3", name: "Priya Nair", initials: "PN", role: "Social Media Manager", status: "active", hoursThisWeek: 32, weeklyCapacity: 40, performance: 89, startedOn: "2025-01-20", email: "priya.nair@cyberbacker.com", timezone: "IST (GMT+5:30)", skills: ["Content", "Canva", "Analytics"] },
-  { id: "cb4", name: "Tomas Reyes", initials: "TR", role: "Customer Support", status: "onboarding", hoursThisWeek: 14, weeklyCapacity: 40, performance: 78, startedOn: "2026-06-01", email: "tomas.reyes@cyberbacker.com", timezone: "PHT (GMT+8)", skills: ["Zendesk", "Chat", "Email"] },
-  { id: "cb5", name: "Hana Kim", initials: "HK", role: "Data Entry Specialist", status: "active", hoursThisWeek: 36, weeklyCapacity: 40, performance: 94, startedOn: "2024-11-08", email: "hana.kim@cyberbacker.com", timezone: "KST (GMT+9)", skills: ["Excel", "CRM", "Research"] },
-  { id: "cb6", name: "Liam Walsh", initials: "LW", role: "Marketing Assistant", status: "paused", hoursThisWeek: 0, weeklyCapacity: 40, performance: 85, startedOn: "2025-03-15", email: "liam.walsh@cyberbacker.com", timezone: "GMT+0", skills: ["SEO", "Email", "Ads"] },
+  {
+    id: "cb1", name: "Maya Lin", initials: "ML", role: "Executive Assistant", status: "active",
+    hoursThisWeek: 38, weeklyCapacity: 40, performance: 96, startedOn: "2024-08-12",
+    email: "maya.lin@cyberbacker.com", timezone: "PHT (GMT+8)", skills: ["Calendar", "Inbox", "Travel"],
+    attendanceRate: 98, productivity: 95, tasksCompleted: 312,
+    certifications: [
+      { name: "Google Workspace Pro", issuer: "Google", issuedOn: "2024-09-01", expiresOn: "2026-09-01" },
+      { name: "Executive Assistant Certification", issuer: "Cyberbacker Academy", issuedOn: "2024-08-20" },
+    ],
+    schedule: weekdaySchedule("08:00", "16:30", 8),
+    attendanceHistory: attendanceHistory(1, 8),
+    reviews: [
+      { period: "Q1 2026", reviewer: "Jordan Avery", score: 96, summary: "Exceptional calendar and inbox ownership; anticipates needs before they arise." },
+      { period: "Q4 2025", reviewer: "Casey Wu", score: 94, summary: "Highly reliable, proactive communicator. Strong travel coordination." },
+    ],
+    trainings: [
+      { title: "Advanced Calendar Management", status: "completed", completedOn: "2025-02-10", progress: 100 },
+      { title: "AI Productivity Tools", status: "in_progress", progress: 60 },
+      { title: "Client Communication Excellence", status: "assigned", progress: 0 },
+    ],
+  },
+  {
+    id: "cb2", name: "Diego Santos", initials: "DS", role: "Bookkeeper", status: "active",
+    hoursThisWeek: 40, weeklyCapacity: 40, performance: 92, startedOn: "2024-05-03",
+    email: "diego.santos@cyberbacker.com", timezone: "PHT (GMT+8)", skills: ["QuickBooks", "Payroll", "AR/AP"],
+    attendanceRate: 95, productivity: 91, tasksCompleted: 268,
+    certifications: [
+      { name: "QuickBooks ProAdvisor", issuer: "Intuit", issuedOn: "2024-06-15", expiresOn: "2026-06-15" },
+      { name: "Xero Advisor Certified", issuer: "Xero", issuedOn: "2025-01-12", expiresOn: "2026-01-12" },
+    ],
+    schedule: weekdaySchedule("09:00", "17:00", 8),
+    attendanceHistory: attendanceHistory(2, 8),
+    reviews: [
+      { period: "Q1 2026", reviewer: "Finance Team", score: 92, summary: "Accurate month-end close, zero reconciliation errors this quarter." },
+      { period: "Q4 2025", reviewer: "Jordan Avery", score: 90, summary: "Dependable and detail-oriented; payroll consistently on time." },
+    ],
+    trainings: [
+      { title: "Advanced Payroll Compliance", status: "completed", completedOn: "2025-03-22", progress: 100 },
+      { title: "Financial Reporting with AI", status: "in_progress", progress: 40 },
+    ],
+  },
+  {
+    id: "cb3", name: "Priya Nair", initials: "PN", role: "Social Media Manager", status: "active",
+    hoursThisWeek: 32, weeklyCapacity: 40, performance: 89, startedOn: "2025-01-20",
+    email: "priya.nair@cyberbacker.com", timezone: "IST (GMT+5:30)", skills: ["Content", "Canva", "Analytics"],
+    attendanceRate: 93, productivity: 90, tasksCompleted: 197,
+    certifications: [
+      { name: "Meta Certified Marketing Pro", issuer: "Meta", issuedOn: "2025-02-18", expiresOn: "2026-02-18" },
+      { name: "HubSpot Content Marketing", issuer: "HubSpot", issuedOn: "2025-03-05" },
+    ],
+    schedule: weekdaySchedule("13:00", "21:00", 7),
+    attendanceHistory: attendanceHistory(3, 7),
+    reviews: [
+      { period: "Q1 2026", reviewer: "Jordan Avery", score: 89, summary: "Strong content cadence; engagement up 22% across channels." },
+    ],
+    trainings: [
+      { title: "Paid Social Strategy", status: "completed", completedOn: "2025-04-30", progress: 100 },
+      { title: "Short-form Video Editing", status: "in_progress", progress: 75 },
+      { title: "Brand Voice Workshop", status: "assigned", progress: 0 },
+    ],
+  },
+  {
+    id: "cb4", name: "Tomas Reyes", initials: "TR", role: "Customer Support", status: "onboarding",
+    hoursThisWeek: 14, weeklyCapacity: 40, performance: 78, startedOn: "2026-06-01",
+    email: "tomas.reyes@cyberbacker.com", timezone: "PHT (GMT+8)", skills: ["Zendesk", "Chat", "Email"],
+    attendanceRate: 88, productivity: 76, tasksCompleted: 41,
+    certifications: [
+      { name: "Zendesk Support Fundamentals", issuer: "Zendesk", issuedOn: "2026-06-05" },
+    ],
+    schedule: weekdaySchedule("08:30", "12:30", 4),
+    attendanceHistory: attendanceHistory(4, 4),
+    reviews: [
+      { period: "Onboarding", reviewer: "Facilitator", score: 78, summary: "Ramping well; product knowledge improving each week." },
+    ],
+    trainings: [
+      { title: "Support Onboarding Bootcamp", status: "in_progress", progress: 55 },
+      { title: "Ticket Triage & SLAs", status: "assigned", progress: 0 },
+    ],
+  },
+  {
+    id: "cb5", name: "Hana Kim", initials: "HK", role: "Data Entry Specialist", status: "active",
+    hoursThisWeek: 36, weeklyCapacity: 40, performance: 94, startedOn: "2024-11-08",
+    email: "hana.kim@cyberbacker.com", timezone: "KST (GMT+9)", skills: ["Excel", "CRM", "Research"],
+    attendanceRate: 97, productivity: 96, tasksCompleted: 421,
+    certifications: [
+      { name: "Microsoft Excel Expert", issuer: "Microsoft", issuedOn: "2024-12-01", expiresOn: "2026-12-01" },
+      { name: "Salesforce CRM Basics", issuer: "Salesforce", issuedOn: "2025-05-10" },
+    ],
+    schedule: weekdaySchedule("09:00", "17:00", 8),
+    attendanceHistory: attendanceHistory(5, 8),
+    reviews: [
+      { period: "Q1 2026", reviewer: "Jordan Avery", score: 94, summary: "Fastest, most accurate data throughput on the team." },
+      { period: "Q4 2025", reviewer: "Casey Wu", score: 93, summary: "Meticulous and consistent; great research support." },
+    ],
+    trainings: [
+      { title: "Data Validation & QA", status: "completed", completedOn: "2025-06-01", progress: 100 },
+      { title: "Automation with Zapier", status: "in_progress", progress: 35 },
+    ],
+  },
+  {
+    id: "cb6", name: "Liam Walsh", initials: "LW", role: "Marketing Assistant", status: "paused",
+    hoursThisWeek: 0, weeklyCapacity: 40, performance: 85, startedOn: "2025-03-15",
+    email: "liam.walsh@cyberbacker.com", timezone: "GMT+0", skills: ["SEO", "Email", "Ads"],
+    attendanceRate: 82, productivity: 84, tasksCompleted: 154,
+    certifications: [
+      { name: "Google Ads Search Certification", issuer: "Google", issuedOn: "2025-04-02", expiresOn: "2026-04-02" },
+    ],
+    schedule: weekdaySchedule("08:00", "16:00", 8),
+    attendanceHistory: attendanceHistory(6, 8),
+    reviews: [
+      { period: "Q4 2025", reviewer: "Jordan Avery", score: 85, summary: "Solid execution on email and SEO; engagement paused pending reassignment." },
+    ],
+    trainings: [
+      { title: "Technical SEO Foundations", status: "completed", completedOn: "2025-05-20", progress: 100 },
+      { title: "Lifecycle Email Strategy", status: "assigned", progress: 0 },
+    ],
+  },
 ];
 
 export const candidates: Candidate[] = [
