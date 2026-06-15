@@ -1,48 +1,53 @@
-# Hiring Marketplace + Logo Fix
+## Cyberbacker Management page + logo fixes
 
-## 1. Fix the sidebar logo (no tagline)
+### 1. Logo consistency + collapsed overlap (`AppSidebar.tsx` + new asset)
 
-The light-mode logo is already tagline-free, but the dark-mode logo (`cyberbacker-logo-light.png`) still shows the "We've Got Your Back. World-Class Professional Support." tagline.
+Problem confirmed: in light mode the sidebar shows `cyberbacker-mark-dark.png` which still carries the **tagline** ("We've Got Your Back / World-Class Professional Support", aspect 2.14, rendered at `h-6`), while dark mode shows the **tagline-free** `cyberbacker-wordmark-light.png` at `h-8`. So the two themes show different logos at different sizes.
 
-- Generate a clean **white, tagline-free** logo by removing the tagline area from the existing white logo, then register it as a new CDN asset (`cyberbacker-wordmark-light.png`).
-- Update `AppSidebar.tsx` to use this new tagline-free white logo in dark mode (light mode already uses the correct mark).
+Fixes:
+- Generate a clean, **tagline-free dark wordmark** (`cyberbacker-wordmark-dark.png`) to mirror the existing tagline-free light wordmark, and register it as a CDN asset.
+- Use the two tagline-free wordmarks at the **same height** (`h-7`) for light/dark — visually consistent.
+- Collapsed state: render a compact, centered brand mark with no horizontal padding so it can't overflow/overlap the icon rail. Use `justify-center` and remove `gap`/`px` when collapsed, keep the rounded "CB" tile sized to the icon rail.
 
-## 2. Extend the candidate data model
+### 2. Extend the data model (`src/lib/data/types.ts`)
 
-`src/lib/data/types.ts` — add fields to the `Candidate` interface to support the new page:
+Add optional rich fields to the existing `Cyberbacker` interface (kept optional so other pages stay valid) plus supporting types:
 
-- `industries: string[]` — industry experience (e.g. Real Estate, Healthcare)
-- `valuesScore: number` — Values Assessment Score (0–100)
-- `introVideoUrl?: string` — intro video placeholder (kept null/empty; UI shows a placeholder)
-- `bio: string` — short professional summary for the detail panel
+```text
+Cyberbacker (added):
+  avatarUrl?, attendanceRate, productivity, tasksCompleted,
+  certifications: Certification[], schedule: ScheduleDay[],
+  attendanceHistory: AttendanceDay[], reviews: PerformanceReview[],
+  trainings: TrainingRecord[]
 
-`src/lib/data/mock.ts` — enrich the 6 existing candidates (and add a few more, ~9 total) with realistic values for the new fields. No backend; still served through the existing `api.getCandidates` / `q.candidates()` flow.
+Certification { name, issuer, issuedOn, expiresOn? }
+ScheduleDay { day, start, end, hours }   // Mon–Fri shift
+AttendanceDay { date, status, hours }     // present/late/absent/leave
+PerformanceReview { period, reviewer, score, summary }
+TrainingRecord { title, status: "completed"|"in_progress"|"assigned", completedOn?, progress }
+```
 
-## 3. Rebuild the Marketplace page (`src/routes/_app.marketplace.tsx`)
+### 3. Mock data (`src/lib/data/mock.ts`)
 
-A talent-marketplace layout inspired by LinkedIn Recruiter / modern hiring tools, using existing shared components and design tokens (powder-blue theme, no hardcoded colors).
+Populate the new fields with realistic values for each existing cyberbacker (certifications like "Google Workspace Pro", "HubSpot CRM"; a Mon–Fri schedule; ~12 days of attendance history; 2–3 performance reviews; 3–4 training records with mixed status; productivity/attendanceRate numbers). No new query needed — reuses `q.cyberbackers()`.
 
-**Toolbar**
-- Prominent search bar (name, role, skill, industry).
-- "Advanced filters" — a collapsible filter bar / popover with: availability, minimum years of experience, minimum rating, minimum values score, industry, and skill chips. Plus a results count and a "Clear filters" action.
+### 4. Rebuild the page (`src/routes/_app.internal.cyberbackers.tsx`)
 
-**Candidate cards grid**
-Each card shows: avatar + name, role, years of experience, top skills, industry tags, availability badge, Values Assessment Score, rating, and match score. Card actions:
-- **View Profile** → opens the detail side panel
-- **Schedule Interview** → confirmation toast (sonner)
-- **Shortlist** → toggles shortlisted state (heart/bookmark), toast feedback
-- A **Compare** checkbox to add/remove the candidate from comparison
+Enterprise dashboard layout:
 
-**Detail side panel** (shadcn `Sheet`, slides from right)
-Full candidate info: header (name, role, availability, rating, match), **intro video placeholder** (16:9 block with play icon + "Intro video coming soon"), Values Assessment Score (progress bar), years of experience, full skill list, industry experience, bio, and the three primary actions (View Profile is the panel itself, Schedule Interview, Shortlist).
+- **Header**: title + "Onboard Cyberbacker" action (kept).
+- **KPI row** (`StatCard`): Active Cyberbackers, Avg Attendance, Avg Productivity, Avg Performance Score.
+- **Overview band**: small charts using existing `Charts.tsx` — productivity/attendance trend (area) + status distribution (donut).
+- **Roster grid**: rich cards per cyberbacker (avatar/initials, role, status badge, skill chips, performance + attendance + productivity mini-bars). Card click / "View profile" opens the detail panel.
+- **Detail side panel** (shadcn `Sheet`): tabbed (`Tabs`) sections —
+  - Overview: photo/initials, role, skills, schedule table, productivity/performance/attendance stats.
+  - Certifications: list with issuer + dates, expiry badges.
+  - Attendance: recent attendance history rows with status badges.
+  - Reviews: performance reviews with score + reviewer + summary.
+  - Training: training records with status + progress bars.
+  - **Management actions** (footer, always visible): **Request Coaching**, **Submit Feedback**, **Request Replacement**, **Schedule Review** — wired to `sonner` toasts (mock layer, no backend).
 
-**Candidate comparison**
-- Selecting candidates via the Compare checkbox shows a sticky bottom **comparison bar** ("N selected · Compare").
-- Clicking Compare opens a `Dialog` with a side-by-side comparison table across key attributes (role, experience, rating, values score, availability, rate, skills, industries) for up to 3–4 candidates.
-
-All filtering/sorting is client-side over the TanStack Query data. State (search, filters, shortlist set, compare set, open panel) lives in component `useState`.
-
-## Technical notes
-- Reuse `PageHeader`, `InitialsAvatar`, `StatusBadge`/`toneFor`, and shadcn `Card`, `Button`, `Badge`, `Input`, `Select`, `Sheet`, `Dialog`, `Checkbox`, `Progress`, `Popover`, `Slider`.
-- Keep the route's `loader` + `useSuspenseQuery(q.candidates())` pattern.
-- No business-logic/backend changes — purely the typed mock layer + UI.
+### Technical notes
+- Frontend only; reuses `PageHeader`, `StatCard`, `InitialsAvatar`, `StatusBadge`/`toneFor`/`prettify`, `Charts`, `Sheet`, `Tabs`, `Progress`, `Badge`, `Button`, `Table`, `sonner`. No backend / no schema changes.
+- New status tones ("completed", "in_progress", "assigned") already largely covered by `toneFor`; add any missing keys there.
+- All colors via existing semantic tokens (no hardcoded colors).
