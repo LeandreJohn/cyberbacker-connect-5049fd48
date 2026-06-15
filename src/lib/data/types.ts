@@ -34,6 +34,42 @@ export interface CurrentUser {
   initials: string;
 }
 
+export interface Certification {
+  name: string;
+  issuer: string;
+  issuedOn: string;
+  expiresOn?: string;
+}
+
+export interface ScheduleDay {
+  day: string; // Mon, Tue ...
+  start: string; // 08:00
+  end: string; // 16:00
+  hours: number;
+}
+
+export interface AttendanceDay {
+  date: string;
+  status: "present" | "late" | "absent" | "leave";
+  hours: number;
+}
+
+export interface PerformanceReview {
+  period: string;
+  reviewer: string;
+  score: number; // 0-100
+  summary: string;
+}
+
+export type TrainingStatus = "completed" | "in_progress" | "assigned";
+
+export interface TrainingRecord {
+  title: string;
+  status: TrainingStatus;
+  completedOn?: string;
+  progress: number; // 0-100
+}
+
 export interface Cyberbacker {
   id: string;
   name: string;
@@ -47,6 +83,16 @@ export interface Cyberbacker {
   email: string;
   timezone: string;
   skills: string[];
+  // Rich management profile (optional so other pages stay valid)
+  avatarUrl?: string;
+  attendanceRate?: number; // 0-100
+  productivity?: number; // 0-100
+  tasksCompleted?: number;
+  certifications?: Certification[];
+  schedule?: ScheduleDay[];
+  attendanceHistory?: AttendanceDay[];
+  reviews?: PerformanceReview[];
+  trainings?: TrainingRecord[];
 }
 
 export interface Candidate {
