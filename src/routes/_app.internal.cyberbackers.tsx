@@ -59,7 +59,10 @@ export const Route = createFileRoute("/_app/internal/cyberbackers")({
       },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(q.cyberbackers()),
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(q.cyberbackers());
+    context.queryClient.ensureQueryData(q.performanceTrend());
+  },
   component: CyberbackerManagement,
 });
 
