@@ -13,8 +13,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { navGroups } from "./nav-config";
-import wordmarkDark from "@/assets/cyberbacker-mark-dark.png.asset.json";
-import wordmarkLight from "@/assets/cyberbacker-wordmark-light.png.asset.json";
+import wordmarkDarkText from "@/assets/cyberbacker-mark-dark.png.asset.json";
+import wordmarkLightText from "@/assets/cyberbacker-wordmark-light.png.asset.json";
 
 export function AppSidebar() {
   const { state, setOpenMobile, isMobile } = useSidebar();
@@ -29,23 +29,29 @@ export function AppSidebar() {
         <Link
           to="/"
           onClick={() => isMobile && setOpenMobile(false)}
-          className="flex items-center gap-2.5 px-1 py-1.5"
+          aria-label="Cyberbacker home"
+          className={
+            collapsed
+              ? "flex items-center justify-center py-1"
+              : "flex items-center gap-2.5 px-1 py-1.5"
+          }
         >
           {collapsed ? (
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-powder text-sm font-bold text-powder-foreground">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gradient-powder text-xs font-bold text-powder-foreground">
               CB
             </span>
           ) : (
             <>
+              {/* Light mode: black wordmark. Dark mode: white wordmark. Same lockup, same height. */}
               <img
-                src={wordmarkDark.url}
+                src={wordmarkDarkText.url}
                 alt="Cyberbacker"
-                className="h-6 w-auto max-w-full object-contain object-left dark:hidden"
+                className="h-7 w-auto max-w-full object-contain object-left dark:hidden"
               />
               <img
-                src={wordmarkLight.url}
+                src={wordmarkLightText.url}
                 alt="Cyberbacker"
-                className="hidden h-8 w-auto max-w-full object-contain object-left dark:block"
+                className="hidden h-7 w-auto max-w-full object-contain object-left dark:block"
               />
             </>
           )}
