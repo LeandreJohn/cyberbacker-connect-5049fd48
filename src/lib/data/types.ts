@@ -12,7 +12,7 @@ export type Role =
 
 export type CyberbackerStatus = "active" | "onboarding" | "paused" | "offboarded";
 export type AvailabilityStatus = "available" | "interviewing" | "hired";
-export type TicketStatus = "open" | "in_progress" | "waiting" | "resolved" | "closed";
+export type TicketStatus = "open" | "in_progress" | "pending_client" | "resolved" | "closed";
 export type TicketPriority = "low" | "medium" | "high" | "urgent";
 export type ContractStatus = "active" | "pending_signature" | "draft" | "expired";
 export type InvoiceStatus = "paid" | "due" | "overdue" | "processing";
