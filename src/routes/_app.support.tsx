@@ -42,9 +42,11 @@ function Support() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Support Center" description="Get help and track your requests">
-        <CreateTicketModal />
-      </PageHeader>
+      <PageHeader
+        title="Support Center"
+        description="Get help and track your requests"
+        actions={<CreateTicketModal />}
+      />
 
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         <StatCard label="Open" value={String(count("open"))} icon={CircleDot} hint="awaiting reply" />
