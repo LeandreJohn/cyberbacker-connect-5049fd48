@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrendAreaChart, DonutChart, chartColors } from "@/components/charts/Charts";
 import { q } from "@/lib/data/queries";
-import logoLight from "@/assets/cyberbacker-logo-light.png.asset.json";
+import logoLight from "@/assets/cyberbacker-logo-light.png";
 
 export const Route = createFileRoute("/_app/")({
   head: () => ({
