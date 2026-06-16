@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrendAreaChart, DonutChart, chartColors } from "@/components/charts/Charts";
 import { q } from "@/lib/data/queries";
-import logoLight from "@/assets/cyberbacker-logo-light.png.asset.json";
+import logoLight from "@/assets/cyberbacker-logo-light.png";
 
 export const Route = createFileRoute("/_app/")({
   head: () => ({
@@ -78,7 +78,7 @@ function Dashboard() {
 
   const activeCount = team.filter((c) => c.status === "active").length;
   const openTickets = tickets.filter(
-    (t) => t.status === "open" || t.status === "in_progress" || t.status === "waiting",
+    (t) => t.status === "open" || t.status === "in_progress" || t.status === "pending_client",
   );
   const presentCount = attendance.filter((a) => a.status === "present").length;
   const lateCount = attendance.filter((a) => a.status === "late").length;
@@ -108,7 +108,7 @@ function Dashboard() {
         <div className="bg-white/10 pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full blur-2xl" />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-xl">
-            <img src={logoLight.url} alt="Cyberbacker" className="mb-4 h-10 w-auto" />
+            <img src={logoLight} alt="Cyberbacker" className="mb-4 h-10 w-auto" />
             <h1 className="text-2xl font-bold tracking-tight text-primary-foreground sm:text-3xl">
               Welcome back, Jordan
             </h1>

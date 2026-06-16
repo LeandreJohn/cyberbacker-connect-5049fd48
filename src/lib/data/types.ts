@@ -12,7 +12,7 @@ export type Role =
 
 export type CyberbackerStatus = "active" | "onboarding" | "paused" | "offboarded";
 export type AvailabilityStatus = "available" | "interviewing" | "hired";
-export type TicketStatus = "open" | "in_progress" | "waiting" | "resolved" | "closed";
+export type TicketStatus = "open" | "in_progress" | "pending_client" | "resolved" | "closed";
 export type TicketPriority = "low" | "medium" | "high" | "urgent";
 export type ContractStatus = "active" | "pending_signature" | "draft" | "expired";
 export type InvoiceStatus = "paid" | "due" | "overdue" | "processing";
@@ -131,10 +131,47 @@ export interface PerformancePoint {
   hours: number;
 }
 
+export type AttachmentType = "image" | "pdf" | "doc" | "sheet" | "file";
+
+export interface TicketAttachment {
+  id: string;
+  name: string;
+  sizeKb: number;
+  type: AttachmentType;
+}
+
+export interface TicketMessage {
+  id: string;
+  author: string;
+  initials: string;
+  role: "client" | "agent";
+  body: string;
+  time: string;
+  internal?: boolean; // internal note, agents only
+  attachments?: TicketAttachment[];
+}
+
+export type TicketEventType =
+  | "created"
+  | "status"
+  | "assignment"
+  | "priority"
+  | "comment"
+  | "attachment";
+
+export interface TicketEvent {
+  id: string;
+  type: TicketEventType;
+  label: string;
+  actor: string;
+  time: string;
+}
+
 export interface Ticket {
   id: string;
   subject: string;
   requester: string;
+  requesterInitials: string;
   category: string;
   status: TicketStatus;
   priority: TicketPriority;
@@ -142,6 +179,11 @@ export interface Ticket {
   updatedAt: string;
   assignedTo: string;
   slaHoursLeft: number;
+  description: string;
+  tags?: string[];
+  attachments: TicketAttachment[];
+  messages: TicketMessage[];
+  events: TicketEvent[];
 }
 
 export interface Article {

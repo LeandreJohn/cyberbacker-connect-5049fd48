@@ -1,30 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
+import { useState } from "react";
+import { CircleDot, Loader2, Clock, CheckCircle2, Inbox } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/PageHeader";
-import { StatusBadge, toneFor, prettify } from "@/components/shared/StatusBadge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { StatCard } from "@/components/shared/StatCard";
+import { Card } from "@/components/ui/card";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { CreateTicketModal } from "@/components/support/CreateTicketModal";
+import { TicketList } from "@/components/support/TicketList";
+import { TicketDetailPanel } from "@/components/support/TicketDetailPanel";
 import { q } from "@/lib/data/queries";
+import type { Ticket } from "@/lib/data/types";
 
 export const Route = createFileRoute("/_app/support")({
   head: () => ({
@@ -39,88 +26,71 @@ export const Route = createFileRoute("/_app/support")({
 
 function Support() {
   const { data: tickets } = useSuspenseQuery(q.tickets());
-  const mine = tickets.filter((t) => t.requester.includes("Jordan") || t.requester.includes("BrightPath"));
+  const mine = tickets.filter(
+    (t) => t.requester.includes("Jordan") || t.requester.includes("BrightPath"),
+  );
+
+  const [selected, setSelected] = useState<Ticket | null>(mine[0] ?? null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const select = (t: Ticket) => {
+    setSelected(t);
+    setMobileOpen(true);
+  };
+
+  const count = (s: Ticket["status"]) => mine.filter((t) => t.status === s).length;
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Support Center"
         description="Get help and track your requests"
+        actions={<CreateTicketModal />}
       />
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex-row items-center justify-between">
-            <CardTitle>Your tickets</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Subject</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead className="text-right">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mine.map((t) => (
-                    <TableRow key={t.id} className="cursor-pointer">
-                      <TableCell>
-                        <p className="font-medium">{t.subject}</p>
-                        <p className="text-xs text-muted-foreground">
-                          #{t.id.toUpperCase()} · updated {t.updatedAt}
-                        </p>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">{t.category}</TableCell>
-                      <TableCell>
-                        <StatusBadge label={t.priority} tone={toneFor(t.priority)} />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <StatusBadge label={prettify(t.status)} tone={toneFor(t.status)} />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5 text-primary" /> New ticket
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="subject">Subject</Label>
-              <Input id="subject" placeholder="Briefly describe your issue" />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Category</Label>
-              <Select defaultValue="account">
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="account">Account</SelectItem>
-                  <SelectItem value="billing">Billing</SelectItem>
-                  <SelectItem value="onboarding">Onboarding</SelectItem>
-                  <SelectItem value="reports">Reports</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="desc">Description</Label>
-              <Textarea id="desc" rows={4} placeholder="Tell us what's happening…" />
-            </div>
-            <Button className="w-full">Submit ticket</Button>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+        <StatCard label="Open" value={String(count("open"))} icon={CircleDot} hint="awaiting reply" />
+        <StatCard label="In Progress" value={String(count("in_progress"))} icon={Loader2} />
+        <StatCard label="Pending Client" value={String(count("pending_client"))} icon={Clock} hint="needs your input" />
+        <StatCard label="Resolved" value={String(count("resolved"))} icon={CheckCircle2} />
       </div>
+
+      <Card className="overflow-hidden p-0">
+        <div className="grid lg:grid-cols-[minmax(0,380px)_1fr]">
+          <div className="lg:border-r lg:border-border">
+            <TicketList
+              tickets={mine}
+              selectedId={selected?.id}
+              onSelect={select}
+              className="h-[640px]"
+            />
+          </div>
+          {/* Desktop detail */}
+          <div className="hidden lg:block">
+            {selected ? (
+              <TicketDetailPanel ticket={selected} variant="client" className="h-[640px] p-5" />
+            ) : (
+              <EmptyDetail />
+            )}
+          </div>
+        </div>
+      </Card>
+
+      {/* Mobile detail in a sheet */}
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent side="right" className="w-full overflow-y-auto p-5 sm:max-w-md lg:hidden">
+          {selected && <TicketDetailPanel ticket={selected} variant="client" className="h-full" />}
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}
+
+function EmptyDetail() {
+  return (
+    <div className="flex h-[640px] flex-col items-center justify-center gap-2 text-center text-muted-foreground">
+      <Inbox className="h-10 w-10" />
+      <p className="text-sm">Select a ticket to view the conversation.</p>
     </div>
   );
 }
