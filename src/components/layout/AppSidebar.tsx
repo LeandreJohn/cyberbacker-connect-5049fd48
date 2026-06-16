@@ -45,12 +45,12 @@ export function AppSidebar() {
             <>
               {/* Light mode: black wordmark. Dark mode: white wordmark. Same lockup, same height. */}
               <img
-                src={wordmarkDarkText.url}
+                src={wordmarkDarkText}
                 alt="Cyberbacker"
                 className="h-7 w-auto max-w-full object-contain object-left dark:hidden"
               />
               <img
-                src={wordmarkLightText.url}
+                src={wordmarkLightText}
                 alt="Cyberbacker"
                 className="hidden h-7 w-auto max-w-full object-contain object-left dark:block"
               />
