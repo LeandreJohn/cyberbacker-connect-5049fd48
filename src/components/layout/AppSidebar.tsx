@@ -13,8 +13,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { navGroups } from "./nav-config";
-import wordmarkDarkText from "@/assets/cyberbacker-mark-dark.png.asset.json";
-import wordmarkLightText from "@/assets/cyberbacker-wordmark-light.png.asset.json";
+// Bundled in the app so the brand mark renders even offline.
+import wordmarkDarkText from "@/assets/cyberbacker-mark-dark.png";
+import wordmarkLightText from "@/assets/cyberbacker-wordmark-light.png";
 
 export function AppSidebar() {
   const { state, setOpenMobile, isMobile } = useSidebar();
