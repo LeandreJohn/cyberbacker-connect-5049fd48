@@ -78,7 +78,7 @@ function Dashboard() {
 
   const activeCount = team.filter((c) => c.status === "active").length;
   const openTickets = tickets.filter(
-    (t) => t.status === "open" || t.status === "in_progress" || t.status === "waiting",
+    (t) => t.status === "open" || t.status === "in_progress" || t.status === "pending_client",
   );
   const presentCount = attendance.filter((a) => a.status === "present").length;
   const lateCount = attendance.filter((a) => a.status === "late").length;
