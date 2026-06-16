@@ -5,19 +5,13 @@ import { AlarmClock, CircleDot, Inbox, ShieldAlert } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/PageHeader";
 import { StatCard } from "@/components/shared/StatCard";
-import { InitialsAvatar } from "@/components/shared/InitialsAvatar";
-import { StatusBadge, toneFor, prettify } from "@/components/shared/StatusBadge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Card } from "@/components/ui/card";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { CreateTicketModal } from "@/components/support/CreateTicketModal";
+import { TicketList } from "@/components/support/TicketList";
+import { TicketDetailPanel } from "@/components/support/TicketDetailPanel";
 import { q } from "@/lib/data/queries";
+import type { Ticket } from "@/lib/data/types";
 
 export const Route = createFileRoute("/_app/internal/tickets")({
   head: () => ({
@@ -32,25 +26,26 @@ export const Route = createFileRoute("/_app/internal/tickets")({
 
 function TicketManagement() {
   const { data: tickets } = useSuspenseQuery(q.tickets());
-  const [filter, setFilter] = useState("all");
+  const [selected, setSelected] = useState<Ticket | null>(tickets[0] ?? null);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const open = tickets.filter((t) => t.status === "open").length;
+  const open = tickets.filter((t) =>
+    ["open", "in_progress", "pending_client"].includes(t.status),
+  ).length;
   const urgent = tickets.filter((t) => t.priority === "urgent").length;
   const breaching = tickets.filter((t) => t.slaHoursLeft > 0 && t.slaHoursLeft <= 4).length;
 
-  const filtered = tickets.filter((t) => {
-    if (filter === "all") return true;
-    if (filter === "open") return ["open", "in_progress", "waiting"].includes(t.status);
-    if (filter === "urgent") return t.priority === "urgent" || t.priority === "high";
-    if (filter === "resolved") return ["resolved", "closed"].includes(t.status);
-    return true;
-  });
+  const select = (t: Ticket) => {
+    setSelected(t);
+    setMobileOpen(true);
+  };
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Support Ticket Management"
         description="Triage, assign and resolve client tickets"
+        actions={<CreateTicketModal />}
       />
 
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
@@ -60,72 +55,35 @@ function TicketManagement() {
         <StatCard label="SLA Breaching" value={String(breaching)} icon={AlarmClock} hint="< 4h left" />
       </div>
 
-      <Tabs value={filter} onValueChange={setFilter}>
-        <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="open">Open</TabsTrigger>
-          <TabsTrigger value="urgent">Urgent</TabsTrigger>
-          <TabsTrigger value="resolved">Resolved</TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Ticket</TableHead>
-                  <TableHead>Requester</TableHead>
-                  <TableHead>Assigned</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>SLA</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((t) => (
-                  <TableRow key={t.id} className="cursor-pointer">
-                    <TableCell>
-                      <p className="font-medium">{t.subject}</p>
-                      <p className="text-xs text-muted-foreground">
-                        #{t.id.toUpperCase()} · {t.category}
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <InitialsAvatar
-                          initials={t.requester.slice(0, 2).toUpperCase()}
-                          size="sm"
-                        />
-                        <span className="text-sm">{t.requester}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{t.assignedTo}</TableCell>
-                    <TableCell>
-                      <StatusBadge label={t.priority} tone={toneFor(t.priority)} />
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={
-                          t.slaHoursLeft > 0 && t.slaHoursLeft <= 4
-                            ? "text-sm font-medium text-destructive"
-                            : "text-sm text-muted-foreground"
-                        }
-                      >
-                        {t.slaHoursLeft > 0 ? `${t.slaHoursLeft}h left` : "Met"}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <StatusBadge label={prettify(t.status)} tone={toneFor(t.status)} />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+      <Card className="overflow-hidden p-0">
+        <div className="grid lg:grid-cols-[minmax(0,400px)_1fr]">
+          <div className="lg:border-r lg:border-border">
+            <TicketList
+              tickets={tickets}
+              selectedId={selected?.id}
+              onSelect={select}
+              showRequester
+              className="h-[680px]"
+            />
           </div>
-        </CardContent>
+          <div className="hidden lg:block">
+            {selected ? (
+              <TicketDetailPanel ticket={selected} variant="agent" className="h-[680px] p-5" />
+            ) : (
+              <div className="flex h-[680px] flex-col items-center justify-center gap-2 text-center text-muted-foreground">
+                <Inbox className="h-10 w-10" />
+                <p className="text-sm">Select a ticket from the queue.</p>
+              </div>
+            )}
+          </div>
+        </div>
       </Card>
+
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent side="right" className="w-full overflow-y-auto p-5 sm:max-w-md lg:hidden">
+          {selected && <TicketDetailPanel ticket={selected} variant="agent" className="h-full" />}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
