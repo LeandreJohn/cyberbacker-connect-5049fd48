@@ -108,7 +108,7 @@ function Dashboard() {
         <div className="bg-white/10 pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full blur-2xl" />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-xl">
-            <img src={logoLight.url} alt="Cyberbacker" className="mb-4 h-10 w-auto" />
+            <img src={logoLight} alt="Cyberbacker" className="mb-4 h-10 w-auto" />
             <h1 className="text-2xl font-bold tracking-tight text-primary-foreground sm:text-3xl">
               Welcome back, Jordan
             </h1>
