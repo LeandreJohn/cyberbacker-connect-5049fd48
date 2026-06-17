@@ -25,6 +25,10 @@ export const q = {
   revenueTrend: () => queryOptions({ queryKey: ["revenueTrend"], queryFn: api.getRevenueTrend }),
   acquisitionFunnel: () =>
     queryOptions({ queryKey: ["acquisitionFunnel"], queryFn: api.getAcquisitionFunnel }),
+  growthTrend: () => queryOptions({ queryKey: ["growthTrend"], queryFn: api.getGrowthTrend }),
+  ticketVolume: () => queryOptions({ queryKey: ["ticketVolume"], queryFn: api.getTicketVolume }),
+  retentionTrend: () =>
+    queryOptions({ queryKey: ["retentionTrend"], queryFn: api.getRetentionTrend }),
   systemUsers: () => queryOptions({ queryKey: ["systemUsers"], queryFn: api.getSystemUsers }),
   auditLog: () => queryOptions({ queryKey: ["auditLog"], queryFn: api.getAuditLog }),
   notifications: () =>

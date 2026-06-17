@@ -1,65 +1,66 @@
-# Support Center module (Zendesk/Freshdesk style)
+## Goal
 
-Build a full helpdesk experience on **both** surfaces, sharing components, plus make the brand logos load offline.
+Add two executive-grade internal dashboards modeled on Power BI / Tableau / Salesforce:
 
-## 1. Data model & mock data
+1. **Internal Operations Dashboard** — the new Internal landing (`/internal`), an ops command center with cross-department KPIs and tabbed drill-downs for Recruitment, Support, Finance, and Client Success.
+2. **Executive Dashboard** — revamp the existing `/internal/executive` page into a company-wide strategic view with 7 metrics, 5 charts, and a strategic insights section.
 
-**`src/lib/data/types.ts`**
-- Rename/relabel the "Pending Client" status. Keep the `TicketStatus` union but change `waiting` → `pending_client` so the five statuses are exact: `open | in_progress | pending_client | resolved | closed`. Update the `prettify`/`toneFor` map accordingly (`pending_client` → "Pending Client", warning tone).
-- Extend `Ticket` with the fields the detail view needs:
-  - `description: string`
-  - `attachments: TicketAttachment[]`
-  - `messages: TicketMessage[]` (conversation thread)
-  - `events: TicketEvent[]` (timeline / status history)
-  - `requesterInitials: string`, `tags?: string[]`
-- New supporting interfaces:
-  - `TicketAttachment { id; name; sizeKb; type }`
-  - `TicketMessage { id; author; initials; role: "client" | "agent"; body; time; attachments?: TicketAttachment[] }`
-  - `TicketEvent { id; type: "created" | "status" | "assignment" | "priority" | "comment" | "attachment"; label; actor; time }`
+Both reuse existing patterns: `PageHeader`, `StatCard`, `StatusBadge`, the chart wrappers in `Charts.tsx`, and TanStack Query (loader `ensureQueryData` + `useSuspenseQuery`).
 
-**`src/lib/data/mock.ts`**
-- Update the 5 existing tickets (`waiting` → `pending_client`) and expand to ~7–8 realistic tickets across all five statuses and all four priorities, varied categories (Billing, Account, Onboarding, Reports, Technical).
-- Give each ticket a description, 0–3 attachments, a 3–6 message conversation thread (alternating client/agent), and a matching event timeline.
+## 1. Extend the data layer
 
-No `api.ts`/`queries.ts` signature changes needed — `q.tickets()` already returns the enriched list.
+**`src/lib/data/types.ts`** — add new interfaces:
+- `GrowthPoint { month; clients; cyberbackers }`
+- `TicketVolumePoint { month; opened; resolved }`
+- `RetentionPoint { month; retention; churn }`
+- `DeptSummary { id; label; metrics: {label; value; change?; trend?}[] }` (optional helper, or inline in pages)
 
-## 2. Shared Support components
+**`src/lib/data/mock.ts`** — add 6-month series:
+- `growthTrend` (client + cyberbacker counts trending up)
+- `ticketVolume` (opened vs resolved)
+- `retentionTrend` (retention % up, churn % down)
 
-New folder `src/components/support/`:
-- **`CreateTicketModal.tsx`** — shadcn `Dialog` with subject, category `Select`, priority `Select`, description `Textarea`, and a file-attachment dropzone (local-only file list, no upload backend). Submit fires a `sonner` toast (mock layer). Reusable on both pages.
-- **`TicketStatusBadge` / priority helpers** — thin wrappers over existing `StatusBadge` + `toneFor` so status/priority chips look identical everywhere.
-- **`TicketTimeline.tsx`** — vertical timeline rendering `TicketEvent[]` with icons per event type and connector line.
-- **`ConversationThread.tsx`** — Zendesk-style message thread: avatar (`InitialsAvatar`), author/role, body bubble (agent vs client styled with semantic tokens, not hardcoded colors), inline attachment chips, and a reply composer (`Textarea` + attach + send → toast).
-- **`AttachmentList.tsx`** — file chips with type icon + size, download affordance (visual only).
-- **`TicketDetailPanel.tsx`** — the right-hand detail view used by both surfaces: header (subject, #id, status/priority badges, category, assignee, SLA), `Tabs` for **Conversation** / **Timeline** / **Details (+attachments)**, and action buttons.
+**`src/lib/data/api.ts`** — add `getGrowthTrend`, `getTicketVolume`, `getRetentionTrend` following the existing `mockResponse(...)` pattern (with commented `fetchJson` stubs).
 
-## 3. Client Support Center — `src/routes/_app.support.tsx` (rebuild)
+**`src/lib/data/queries.ts`** — register `growthTrend`, `ticketVolume`, `retentionTrend` query options.
 
-Two-pane Zendesk layout:
-- **Header** with "New Ticket" button (opens `CreateTicketModal`).
-- KPI row (`StatCard`): Open, In Progress, Pending Client, Resolved.
-- **Left:** ticket list with a search `Input`, category filter `Select`, status filter `Tabs` (All / Open / In Progress / Pending Client / Resolved / Closed), and priority filter. Clickable rows select a ticket.
-- **Right:** `TicketDetailPanel` for the selected ticket (conversation thread, timeline, attachments). On mobile the detail opens in a `Sheet`.
-- Scoped to the current client's tickets (existing `requester` filter for Jordan/BrightPath).
+## 2. Internal Operations Dashboard — new landing at `/internal`
 
-## 4. Agent Helpdesk — `src/routes/_app.internal.tickets.tsx` (rebuild)
+New file **`src/routes/_app.internal.index.tsx`** → `createFileRoute("/_app/internal/")`.
 
-Same shared components, staff-oriented:
-- KPI row (Total, Open, Urgent, SLA Breaching) — keep existing stats, add status counts.
-- Full-width ticket queue across **all** clients with search, category filter, priority filter, status `Tabs`, assignee column, SLA column, and requester avatars.
-- Selecting a ticket opens `TicketDetailPanel` (right pane on desktop, `Sheet` on mobile) with agent actions: change status, reassign, set priority, internal reply — all wired to `sonner` toasts.
-- "Create Ticket" button reuses `CreateTicketModal`.
+Layout:
+- `PageHeader` "Operations Dashboard" with a period badge.
+- **Top KPI row** (`StatCard` x5): Active Clients, Active Cyberbackers, Open Tickets, Revenue (MRR), Client Satisfaction (CSAT) — values derived from `clientAccounts`, `cyberbackers`, `tickets`, `revenueTrend`, plus a CSAT constant.
+- **Department drill-downs** via shadcn `Tabs` (Recruitment / Support / Finance / Client Success). Each tab shows:
+  - 3-4 inline mini metric cards for that department,
+  - one relevant chart (Recruitment: pipeline funnel/bar; Support: ticket volume line; Finance: revenue vs payouts bar; Client Success: retention area),
+  - a small table or list (e.g. top pipeline candidates, recent tickets, recent invoices, at-risk accounts),
+  - a "View full dashboard" `Button asChild` linking to the existing department route (`/internal/recruitment`, `/internal/tickets`, `/internal/finance`, `/internal/clients`).
+- Loader primes all needed queries with `ensureQueryData`.
 
-## 5. Logos offline (bundle PNGs)
+## 3. Executive Dashboard revamp — `src/routes/_app.internal.executive.tsx`
 
-Currently logos load from the CDN via `.asset.json` `.url` (won't render offline). Download the referenced brand PNGs into the repo and import them directly so Vite bundles them:
-- Download from their CDN URLs into `src/assets/`: `cyberbacker-mark-dark.png`, `cyberbacker-wordmark-light.png`, `cyberbacker-logo-light.png` (and the remaining two for completeness).
-- Switch imports to direct image imports (e.g. `import wordmarkDark from "@/assets/cyberbacker-mark-dark.png"`) and use the imported value directly as `src` in:
-  - `src/components/layout/AppSidebar.tsx` (light + dark wordmarks)
-  - `src/routes/_app.index.tsx` (dashboard welcome banner logo)
-- Remove the now-unused `.png.asset.json` pointer files for the bundled logos.
+Replace the current body with:
+- **Executive summary cards**: a 7-metric grid using `StatCard`: Total Clients, Total Cyberbackers, Revenue (ARR/MRR), Retention Rate, Churn Rate, Satisfaction Score, Referral Growth.
+- **Charts grid** (5 charts using existing wrappers):
+  - Revenue Trend — `TrendAreaChart` (revenueTrend)
+  - Client Growth — `SimpleLineChart`/`TrendAreaChart` (growthTrend.clients)
+  - Cyberbacker Growth — `GroupedBarChart` (growthTrend.cyberbackers)
+  - Ticket Volume — `SimpleLineChart` (ticketVolume opened vs resolved)
+  - Retention Analysis — `TrendAreaChart` (retentionTrend retention vs churn)
+- **Strategic insights section**: keep/upgrade the strategic objectives progress bars and add an "Insights" card with 3-4 narrative bullet callouts (e.g. NRR, utilization, churn watch) using semantic tokens and small trend badges.
+- Loader primes revenueTrend, performanceTrend, growthTrend, ticketVolume, retentionTrend.
 
-## Technical notes
-- All status/priority colors via existing `StatusBadge` + semantic tokens; no hardcoded colors.
-- Attachments and replies are front-end mock only (no storage/backend) — actions surface `sonner` toasts, matching the existing mock-layer pattern.
-- Data stays in the typed mock layer so the future FastAPI swap is unaffected.
+## 4. Navigation
+
+**`src/components/layout/nav-config.ts`** — add an "Operations Dashboard" item at the top of the Internal group pointing to `/internal` (icon e.g. `Gauge`/`LayoutDashboard`), and keep the existing Executive Dashboard item. Reorder so Operations is first.
+
+## 5. Verify
+
+- Confirm `routeTree.gen.ts` picks up the new `_app.internal.index.tsx` (auto-generated; no manual edit).
+- Load `/internal` and `/internal/executive` in the preview to confirm charts render, tabs switch, and drill-down links navigate. Check light + dark mode.
+
+### Technical notes
+- All colors via semantic tokens / `chartColors` — no hardcoded color classes.
+- Charts already guard SSR via `ChartShell`; safe to reuse.
+- No backend changes; mock layer stays API-ready for the future FastAPI swap.

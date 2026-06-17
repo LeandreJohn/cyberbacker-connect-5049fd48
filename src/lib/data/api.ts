@@ -18,6 +18,7 @@ import type {
   CurrentUser,
   Cyberbacker,
   FunnelStep,
+  GrowthPoint,
   Invoice,
   KbCategory,
   KpiStat,
@@ -26,10 +27,12 @@ import type {
   PerformancePoint,
   PipelineCandidate,
   Renewal,
+  RetentionPoint,
   RevenuePoint,
   Reward,
   SystemUser,
   Ticket,
+  TicketVolumePoint,
 } from "./types";
 
 export const API_BASE = import.meta.env.VITE_API_BASE ?? "/api";
@@ -71,6 +74,11 @@ export const getPipeline = (): Promise<PipelineCandidate[]> => mockResponse(mock
 export const getRevenueTrend = (): Promise<RevenuePoint[]> => mockResponse(mock.revenueTrend);
 export const getAcquisitionFunnel = (): Promise<FunnelStep[]> =>
   mockResponse(mock.acquisitionFunnel);
+export const getGrowthTrend = (): Promise<GrowthPoint[]> => mockResponse(mock.growthTrend);
+export const getTicketVolume = (): Promise<TicketVolumePoint[]> =>
+  mockResponse(mock.ticketVolume);
+export const getRetentionTrend = (): Promise<RetentionPoint[]> =>
+  mockResponse(mock.retentionTrend);
 export const getSystemUsers = (): Promise<SystemUser[]> => mockResponse(mock.systemUsers);
 export const getAuditLog = (): Promise<AuditEntry[]> => mockResponse(mock.auditLog);
 export const getNotifications = (): Promise<Notification[]> => mockResponse(mock.notifications);
