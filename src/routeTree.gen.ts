@@ -21,6 +21,7 @@ import { Route as AppKnowledgeBaseRouteImport } from './routes/_app.knowledge-ba
 import { Route as AppContractsRouteImport } from './routes/_app.contracts'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
 import { Route as AppAttendanceRouteImport } from './routes/_app.attendance'
+import { Route as AppInternalIndexRouteImport } from './routes/_app.internal.index'
 import { Route as AppInternalTicketsRouteImport } from './routes/_app.internal.tickets'
 import { Route as AppInternalRecruitmentRouteImport } from './routes/_app.internal.recruitment'
 import { Route as AppInternalFinanceRouteImport } from './routes/_app.internal.finance'
@@ -89,6 +90,11 @@ const AppAttendanceRoute = AppAttendanceRouteImport.update({
   path: '/attendance',
   getParentRoute: () => AppRoute,
 } as any)
+const AppInternalIndexRoute = AppInternalIndexRouteImport.update({
+  id: '/internal/',
+  path: '/internal/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppInternalTicketsRoute = AppInternalTicketsRouteImport.update({
   id: '/internal/tickets',
   path: '/internal/tickets',
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/internal/finance': typeof AppInternalFinanceRoute
   '/internal/recruitment': typeof AppInternalRecruitmentRoute
   '/internal/tickets': typeof AppInternalTicketsRoute
+  '/internal/': typeof AppInternalIndexRoute
 }
 export interface FileRoutesByTo {
   '/attendance': typeof AppAttendanceRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/internal/finance': typeof AppInternalFinanceRoute
   '/internal/recruitment': typeof AppInternalRecruitmentRoute
   '/internal/tickets': typeof AppInternalTicketsRoute
+  '/internal': typeof AppInternalIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -194,6 +202,7 @@ export interface FileRoutesById {
   '/_app/internal/finance': typeof AppInternalFinanceRoute
   '/_app/internal/recruitment': typeof AppInternalRecruitmentRoute
   '/_app/internal/tickets': typeof AppInternalTicketsRoute
+  '/_app/internal/': typeof AppInternalIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/internal/finance'
     | '/internal/recruitment'
     | '/internal/tickets'
+    | '/internal/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/attendance'
@@ -238,6 +248,7 @@ export interface FileRouteTypes {
     | '/internal/finance'
     | '/internal/recruitment'
     | '/internal/tickets'
+    | '/internal'
   id:
     | '__root__'
     | '/_app'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
     | '/_app/internal/finance'
     | '/_app/internal/recruitment'
     | '/_app/internal/tickets'
+    | '/_app/internal/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -352,6 +364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAttendanceRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/internal/': {
+      id: '/_app/internal/'
+      path: '/internal'
+      fullPath: '/internal/'
+      preLoaderRoute: typeof AppInternalIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/internal/tickets': {
       id: '/_app/internal/tickets'
       path: '/internal/tickets'
@@ -431,6 +450,7 @@ interface AppRouteChildren {
   AppInternalFinanceRoute: typeof AppInternalFinanceRoute
   AppInternalRecruitmentRoute: typeof AppInternalRecruitmentRoute
   AppInternalTicketsRoute: typeof AppInternalTicketsRoute
+  AppInternalIndexRoute: typeof AppInternalIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -453,6 +473,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppInternalFinanceRoute: AppInternalFinanceRoute,
   AppInternalRecruitmentRoute: AppInternalRecruitmentRoute,
   AppInternalTicketsRoute: AppInternalTicketsRoute,
+  AppInternalIndexRoute: AppInternalIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
