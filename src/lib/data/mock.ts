@@ -669,3 +669,30 @@ export const announcements: Announcement[] = [
   { id: "an3", title: "Refer a business, earn $250", body: "Our referral program is now live. Share your code and earn account credit when a referral signs.", date: "Jun 09, 2026", tag: "Community", author: "Growth Team" },
   { id: "an4", title: "Updated data processing policy", body: "We've refreshed our DPA to align with the latest regional privacy standards. No action needed.", date: "Jun 05, 2026", tag: "Policy", author: "Compliance" },
 ];
+
+export const growthTrend: GrowthPoint[] = [
+  { month: "Jan", clients: 248, cyberbackers: 392 },
+  { month: "Feb", clients: 261, cyberbackers: 408 },
+  { month: "Mar", clients: 274, cyberbackers: 431 },
+  { month: "Apr", clients: 289, cyberbackers: 452 },
+  { month: "May", clients: 301, cyberbackers: 474 },
+  { month: "Jun", clients: 312, cyberbackers: 496 },
+];
+
+export const ticketVolume: TicketVolumePoint[] = [
+  { month: "Jan", opened: 184, resolved: 171 },
+  { month: "Feb", opened: 203, resolved: 196 },
+  { month: "Mar", opened: 221, resolved: 214 },
+  { month: "Apr", opened: 198, resolved: 205 },
+  { month: "May", opened: 232, resolved: 226 },
+  { month: "Jun", opened: 217, resolved: 228 },
+];
+
+export const retentionTrend: RetentionPoint[] = [
+  { month: "Jan", retention: 93.8, churn: 6.2 },
+  { month: "Feb", retention: 94.1, churn: 5.9 },
+  { month: "Mar", retention: 94.6, churn: 5.4 },
+  { month: "Apr", retention: 95.0, churn: 5.0 },
+  { month: "May", retention: 95.4, churn: 4.6 },
+  { month: "Jun", retention: 95.8, churn: 4.2 },
+];
