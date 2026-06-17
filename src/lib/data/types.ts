@@ -331,6 +331,24 @@ export interface FunnelStep {
   value: number;
 }
 
+export interface GrowthPoint {
+  month: string;
+  clients: number;
+  cyberbackers: number;
+}
+
+export interface TicketVolumePoint {
+  month: string;
+  opened: number;
+  resolved: number;
+}
+
+export interface RetentionPoint {
+  month: string;
+  retention: number; // %
+  churn: number; // %
+}
+
 export interface SystemUser {
   id: string;
   name: string;
