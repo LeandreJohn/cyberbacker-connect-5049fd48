@@ -21,8 +21,10 @@ import type {
   Renewal,
   RevenuePoint,
   Reward,
+  RetentionPoint,
   SystemUser,
   Ticket,
+  TicketVolumePoint,
 } from "./types";
 
 export const currentUser: CurrentUser = {
