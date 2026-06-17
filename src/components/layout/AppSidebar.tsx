@@ -22,7 +22,9 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const isActive = (to: string) => (to === "/" ? pathname === "/" : pathname.startsWith(to));
+  const exactRoutes = new Set(["/", "/internal"]);
+  const isActive = (to: string) =>
+    exactRoutes.has(to) ? pathname === to : pathname.startsWith(to);
 
   return (
     <Sidebar collapsible="icon" className="border-sidebar-border">
