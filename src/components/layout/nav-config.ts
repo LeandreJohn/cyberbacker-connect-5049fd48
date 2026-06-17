@@ -55,6 +55,7 @@ export const navGroups: NavGroup[] = [
   {
     label: "Internal",
     items: [
+      { title: "Operations Dashboard", to: "/internal", icon: LayoutDashboard },
       { title: "Client Management", to: "/internal/clients", icon: Building2 },
       { title: "Cyberbacker Management", to: "/internal/cyberbackers", icon: UserSquare },
       { title: "Recruitment Pipeline", to: "/internal/recruitment", icon: Workflow },
