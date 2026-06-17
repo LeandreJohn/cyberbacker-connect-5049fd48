@@ -18,6 +18,7 @@ import type {
   CurrentUser,
   Cyberbacker,
   FunnelStep,
+  GrowthPoint,
   Invoice,
   KbCategory,
   KpiStat,
@@ -26,10 +27,12 @@ import type {
   PerformancePoint,
   PipelineCandidate,
   Renewal,
+  RetentionPoint,
   RevenuePoint,
   Reward,
   SystemUser,
   Ticket,
+  TicketVolumePoint,
 } from "./types";
 
 export const API_BASE = import.meta.env.VITE_API_BASE ?? "/api";
