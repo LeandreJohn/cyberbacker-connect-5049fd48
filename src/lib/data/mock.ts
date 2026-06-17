@@ -10,6 +10,7 @@ import type {
   CurrentUser,
   Cyberbacker,
   FunnelStep,
+  GrowthPoint,
   Invoice,
   KbCategory,
   KpiStat,
