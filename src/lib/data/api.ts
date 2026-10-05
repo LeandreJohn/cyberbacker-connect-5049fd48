@@ -84,3 +84,52 @@ export const getAuditLog = (): Promise<AuditEntry[]> => mockResponse(mock.auditL
 export const getNotifications = (): Promise<Notification[]> => mockResponse(mock.notifications);
 export const getRenewals = (): Promise<Renewal[]> => mockResponse(mock.renewals);
 export const getAnnouncements = (): Promise<Announcement[]> => mockResponse(mock.announcements);
+
+// ---- Reviews (mock, in-memory) ----
+import type { Review } from "./types";
+let reviewStore: Review[] | null = null;
+function reviewsSeed(): Review[] {
+  const base = mock.cyberbackers.slice(0, 5);
+  const comments = [
+    "Consistently delivers ahead of schedule and communicates proactively.",
+    "Great attention to detail on client reports. Occasional delays on Fridays.",
+    "Handles our inbox and calendar flawlessly — a real asset to the team.",
+    "Quick learner, adapted to our CRM within a week.",
+    "Reliable and friendly; would love a bit more initiative on follow-ups.",
+    "Outstanding quality on listing descriptions and social posts.",
+  ];
+  const out: Review[] = [];
+  const months = ["2026-05-12", "2026-06-10", "2026-07-08", "2026-08-14", "2026-09-11", "2026-10-01"];
+  base.forEach((cb, i) => {
+    months.forEach((d, j) => {
+      if ((i + j) % 2 === 0 || j > 3) {
+        const s = 3 + ((i + j) % 3);
+        out.push({
+          id: `rv-${cb.id}-${j}`,
+          cyberbackerId: cb.id,
+          cyberbackerName: cb.name,
+          overall: s,
+          communication: Math.min(5, s + (j % 2)),
+          quality: s,
+          reliability: Math.max(3, s - (i % 2)),
+          timeliness: s,
+          comment: comments[(i + j) % comments.length],
+          recommend: s >= 4,
+          date: d,
+          author: "Jordan Hayes",
+        });
+      }
+    });
+  });
+  return out.sort((a, b) => b.date.localeCompare(a.date));
+}
+export const getReviews = (): Promise<Review[]> => {
+  reviewStore ??= reviewsSeed();
+  return mockResponse([...reviewStore]);
+};
+export const submitReview = (r: Omit<Review, "id" | "date" | "author">): Promise<Review> => {
+  reviewStore ??= reviewsSeed();
+  const review: Review = { ...r, id: `rv-${Date.now()}`, date: new Date().toISOString().slice(0, 10), author: "Jordan Hayes" };
+  reviewStore = [review, ...reviewStore];
+  return mockResponse(review);
+};

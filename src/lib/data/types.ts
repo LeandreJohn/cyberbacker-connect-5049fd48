@@ -366,3 +366,18 @@ export interface AuditEntry {
   time: string;
   ip: string;
 }
+
+export interface Review {
+  id: string;
+  cyberbackerId: string;
+  cyberbackerName: string;
+  overall: number;
+  communication: number;
+  quality: number;
+  reliability: number;
+  timeliness: number;
+  comment: string;
+  recommend: boolean;
+  date: string; // ISO
+  author: string;
+}

@@ -2,6 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import * as api from "./api";
 
 export const q = {
+  reviews: () => queryOptions({ queryKey: ["reviews"], queryFn: api.getReviews }),
   currentUser: () => queryOptions({ queryKey: ["currentUser"], queryFn: api.getCurrentUser }),
   dashboardStats: () =>
     queryOptions({ queryKey: ["dashboardStats"], queryFn: api.getDashboardStats }),
