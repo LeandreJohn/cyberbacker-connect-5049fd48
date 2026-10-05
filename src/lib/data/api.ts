@@ -116,7 +116,7 @@ function reviewsSeed(): Review[] {
           comment: comments[(i + j) % comments.length],
           recommend: s >= 4,
           date: d,
-          author: "Jordan Hayes",
+          author: "Jordan Avery",
         });
       }
     });
@@ -129,7 +129,7 @@ export const getReviews = (): Promise<Review[]> => {
 };
 export const submitReview = (r: Omit<Review, "id" | "date" | "author">): Promise<Review> => {
   reviewStore ??= reviewsSeed();
-  const review: Review = { ...r, id: `rv-${Date.now()}`, date: new Date().toISOString().slice(0, 10), author: "Jordan Hayes" };
+  const review: Review = { ...r, id: `rv-${Date.now()}`, date: new Date().toISOString().slice(0, 10), author: "Jordan Avery" };
   reviewStore = [review, ...reviewStore];
   return mockResponse(review);
 };
