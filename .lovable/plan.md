@@ -1,66 +1,33 @@
-## Goal
+# Reviews, Google Login, Job Description Builder, and Static Hosting
 
-Add two executive-grade internal dashboards modeled on Power BI / Tableau / Salesforce:
+## 1. Review & Rate Cyberbackers (new client tab)
+- New sidebar item under Client: **Reviews & Ratings** (`/reviews`).
+- Pick one of your Cyberbackers and give them a 1–5 star rating overall and for Communication, Quality, Reliability and Timeliness, plus a written comment and a "would recommend" toggle.
+- The page shows each Cyberbacker's average rating, recent reviews, and a rating trend chart.
+- Submitting shows a confirmation toast and adds the review to the list (sample data only for now).
 
-1. **Internal Operations Dashboard** — the new Internal landing (`/internal`), an ops command center with cross-department KPIs and tabbed drill-downs for Recruitment, Support, Finance, and Client Success.
-2. **Executive Dashboard** — revamp the existing `/internal/executive` page into a company-wide strategic view with 7 metrics, 5 charts, and a strategic insights section.
+## 2. Google Login page
+- New `/login` page with brand logo, powder-blue split layout, and one **Continue with Google** button.
+- Clicking the button goes straight to the Client Dashboard. There is no real sign-in yet.
+- The page has no sidebar. The profile menu's "Sign out" goes back to `/login`.
 
-Both reuse existing patterns: `PageHeader`, `StatCard`, `StatusBadge`, the chart wrappers in `Charts.tsx`, and TanStack Query (loader `ensureQueryData` + `useSuspenseQuery`).
+## 3. Job Description Builder (on the Dashboard)
+- A **Build Job Description** quick action on the Dashboard opens the builder, which also has its own page (`/job-builder`) linked from the sidebar.
+- Fields: job title, department, task list (add/remove), responsibilities (add/remove), required skills (tag input with suggestions), tools, schedule/time zone, and hours per week.
+- **Tier selector:** choose between
+  - *Trainable / Entry*: has the basics, and you will train them
+  - *Experienced / Plug-and-play*: ready from day one, no training needed
+  Each tier changes the suggested experience level, the rate range, and the wording.
+- A live preview of the finished job description, with Copy, Download and "Find matching candidates" buttons. The last one opens the Hiring Marketplace with filters set from the skills and tier you chose.
 
-## 1. Extend the data layer
+## 4. Static build for Azure (no server rendering)
+- Turn on TanStack Start's single-page app mode. The build becomes a set of static HTML/JS/CSS files that need no server, so you can host them on Azure Static Web Apps or Blob Storage.
+- Add a `staticwebapp.config.json` file so that refreshing any page loads the app correctly (a navigation fallback to index.html).
+- Note: the framework stays the same. Only the output changes to static. The live preview here keeps working as before.
 
-**`src/lib/data/types.ts`** — add new interfaces:
-- `GrowthPoint { month; clients; cyberbackers }`
-- `TicketVolumePoint { month; opened; resolved }`
-- `RetentionPoint { month; retention; churn }`
-- `DeptSummary { id; label; metrics: {label; value; change?; trend?}[] }` (optional helper, or inline in pages)
-
-**`src/lib/data/mock.ts`** — add 6-month series:
-- `growthTrend` (client + cyberbacker counts trending up)
-- `ticketVolume` (opened vs resolved)
-- `retentionTrend` (retention % up, churn % down)
-
-**`src/lib/data/api.ts`** — add `getGrowthTrend`, `getTicketVolume`, `getRetentionTrend` following the existing `mockResponse(...)` pattern (with commented `fetchJson` stubs).
-
-**`src/lib/data/queries.ts`** — register `growthTrend`, `ticketVolume`, `retentionTrend` query options.
-
-## 2. Internal Operations Dashboard — new landing at `/internal`
-
-New file **`src/routes/_app.internal.index.tsx`** → `createFileRoute("/_app/internal/")`.
-
-Layout:
-- `PageHeader` "Operations Dashboard" with a period badge.
-- **Top KPI row** (`StatCard` x5): Active Clients, Active Cyberbackers, Open Tickets, Revenue (MRR), Client Satisfaction (CSAT) — values derived from `clientAccounts`, `cyberbackers`, `tickets`, `revenueTrend`, plus a CSAT constant.
-- **Department drill-downs** via shadcn `Tabs` (Recruitment / Support / Finance / Client Success). Each tab shows:
-  - 3-4 inline mini metric cards for that department,
-  - one relevant chart (Recruitment: pipeline funnel/bar; Support: ticket volume line; Finance: revenue vs payouts bar; Client Success: retention area),
-  - a small table or list (e.g. top pipeline candidates, recent tickets, recent invoices, at-risk accounts),
-  - a "View full dashboard" `Button asChild` linking to the existing department route (`/internal/recruitment`, `/internal/tickets`, `/internal/finance`, `/internal/clients`).
-- Loader primes all needed queries with `ensureQueryData`.
-
-## 3. Executive Dashboard revamp — `src/routes/_app.internal.executive.tsx`
-
-Replace the current body with:
-- **Executive summary cards**: a 7-metric grid using `StatCard`: Total Clients, Total Cyberbackers, Revenue (ARR/MRR), Retention Rate, Churn Rate, Satisfaction Score, Referral Growth.
-- **Charts grid** (5 charts using existing wrappers):
-  - Revenue Trend — `TrendAreaChart` (revenueTrend)
-  - Client Growth — `SimpleLineChart`/`TrendAreaChart` (growthTrend.clients)
-  - Cyberbacker Growth — `GroupedBarChart` (growthTrend.cyberbackers)
-  - Ticket Volume — `SimpleLineChart` (ticketVolume opened vs resolved)
-  - Retention Analysis — `TrendAreaChart` (retentionTrend retention vs churn)
-- **Strategic insights section**: keep/upgrade the strategic objectives progress bars and add an "Insights" card with 3-4 narrative bullet callouts (e.g. NRR, utilization, churn watch) using semantic tokens and small trend badges.
-- Loader primes revenueTrend, performanceTrend, growthTrend, ticketVolume, retentionTrend.
-
-## 4. Navigation
-
-**`src/components/layout/nav-config.ts`** — add an "Operations Dashboard" item at the top of the Internal group pointing to `/internal` (icon e.g. `Gauge`/`LayoutDashboard`), and keep the existing Executive Dashboard item. Reorder so Operations is first.
-
-## 5. Verify
-
-- Confirm `routeTree.gen.ts` picks up the new `_app.internal.index.tsx` (auto-generated; no manual edit).
-- Load `/internal` and `/internal/executive` in the preview to confirm charts render, tabs switch, and drill-down links navigate. Check light + dark mode.
-
-### Technical notes
-- All colors via semantic tokens / `chartColors` — no hardcoded color classes.
-- Charts already guard SSR via `ChartShell`; safe to reuse.
-- No backend changes; mock layer stays API-ready for the future FastAPI swap.
+## Technical details
+- Routes: `src/routes/_app.reviews.tsx`, `src/routes/_app.job-builder.tsx`, `src/routes/login.tsx` (outside the `_app` shell). Each gets its own head().
+- Data: `Review` type plus mock reviews, `getReviews`/`submitReview` in api.ts, and a query in queries.ts. Submitting uses a TanStack Query mutation that updates the cache.
+- JD builder: a reusable `JobDescriptionBuilder` component used on the page and in a Dialog launched from the Dashboard. The Marketplace reads `skills`/`tier` search params for preset filters.
+- nav-config: add Reviews & Ratings and Job Description Builder.
+- vite.config.ts: `tanstackStart: { spa: { enabled: true } }`, with server functions and SSR loaders avoided. `public/staticwebapp.config.json` sets `navigationFallback` to `/index.html` (or `_shell.html` if needed). Record the static-only rule in AGENTS.md.
