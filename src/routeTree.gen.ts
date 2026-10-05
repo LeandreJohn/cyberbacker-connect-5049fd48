@@ -9,15 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as AppSupportRouteImport } from './routes/_app.support'
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppRewardsRouteImport } from './routes/_app.rewards'
+import { Route as AppReviewsRouteImport } from './routes/_app.reviews'
 import { Route as AppPerformanceRouteImport } from './routes/_app.performance'
 import { Route as AppMyCyberbackersRouteImport } from './routes/_app.my-cyberbackers'
 import { Route as AppMarketplaceRouteImport } from './routes/_app.marketplace'
 import { Route as AppKnowledgeBaseRouteImport } from './routes/_app.knowledge-base'
+import { Route as AppJobBuilderRouteImport } from './routes/_app.job-builder'
 import { Route as AppContractsRouteImport } from './routes/_app.contracts'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
 import { Route as AppAttendanceRouteImport } from './routes/_app.attendance'
@@ -31,6 +34,11 @@ import { Route as AppInternalClientsRouteImport } from './routes/_app.internal.c
 import { Route as AppInternalAnalyticsRouteImport } from './routes/_app.internal.analytics'
 import { Route as AppInternalAdminRouteImport } from './routes/_app.internal.admin'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
@@ -55,6 +63,11 @@ const AppRewardsRoute = AppRewardsRouteImport.update({
   path: '/rewards',
   getParentRoute: () => AppRoute,
 } as any)
+const AppReviewsRoute = AppReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPerformanceRoute = AppPerformanceRouteImport.update({
   id: '/performance',
   path: '/performance',
@@ -73,6 +86,11 @@ const AppMarketplaceRoute = AppMarketplaceRouteImport.update({
 const AppKnowledgeBaseRoute = AppKnowledgeBaseRouteImport.update({
   id: '/knowledge-base',
   path: '/knowledge-base',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppJobBuilderRoute = AppJobBuilderRouteImport.update({
+  id: '/job-builder',
+  path: '/job-builder',
   getParentRoute: () => AppRoute,
 } as any)
 const AppContractsRoute = AppContractsRouteImport.update({
@@ -138,13 +156,16 @@ const AppInternalAdminRoute = AppInternalAdminRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/login': typeof LoginRoute
   '/attendance': typeof AppAttendanceRoute
   '/billing': typeof AppBillingRoute
   '/contracts': typeof AppContractsRoute
+  '/job-builder': typeof AppJobBuilderRoute
   '/knowledge-base': typeof AppKnowledgeBaseRoute
   '/marketplace': typeof AppMarketplaceRoute
   '/my-cyberbackers': typeof AppMyCyberbackersRoute
   '/performance': typeof AppPerformanceRoute
+  '/reviews': typeof AppReviewsRoute
   '/rewards': typeof AppRewardsRoute
   '/settings': typeof AppSettingsRoute
   '/support': typeof AppSupportRoute
@@ -159,13 +180,16 @@ export interface FileRoutesByFullPath {
   '/internal/': typeof AppInternalIndexRoute
 }
 export interface FileRoutesByTo {
+  '/login': typeof LoginRoute
   '/attendance': typeof AppAttendanceRoute
   '/billing': typeof AppBillingRoute
   '/contracts': typeof AppContractsRoute
+  '/job-builder': typeof AppJobBuilderRoute
   '/knowledge-base': typeof AppKnowledgeBaseRoute
   '/marketplace': typeof AppMarketplaceRoute
   '/my-cyberbackers': typeof AppMyCyberbackersRoute
   '/performance': typeof AppPerformanceRoute
+  '/reviews': typeof AppReviewsRoute
   '/rewards': typeof AppRewardsRoute
   '/settings': typeof AppSettingsRoute
   '/support': typeof AppSupportRoute
@@ -183,13 +207,16 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
+  '/login': typeof LoginRoute
   '/_app/attendance': typeof AppAttendanceRoute
   '/_app/billing': typeof AppBillingRoute
   '/_app/contracts': typeof AppContractsRoute
+  '/_app/job-builder': typeof AppJobBuilderRoute
   '/_app/knowledge-base': typeof AppKnowledgeBaseRoute
   '/_app/marketplace': typeof AppMarketplaceRoute
   '/_app/my-cyberbackers': typeof AppMyCyberbackersRoute
   '/_app/performance': typeof AppPerformanceRoute
+  '/_app/reviews': typeof AppReviewsRoute
   '/_app/rewards': typeof AppRewardsRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/support': typeof AppSupportRoute
@@ -208,13 +235,16 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/login'
     | '/attendance'
     | '/billing'
     | '/contracts'
+    | '/job-builder'
     | '/knowledge-base'
     | '/marketplace'
     | '/my-cyberbackers'
     | '/performance'
+    | '/reviews'
     | '/rewards'
     | '/settings'
     | '/support'
@@ -229,13 +259,16 @@ export interface FileRouteTypes {
     | '/internal/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/login'
     | '/attendance'
     | '/billing'
     | '/contracts'
+    | '/job-builder'
     | '/knowledge-base'
     | '/marketplace'
     | '/my-cyberbackers'
     | '/performance'
+    | '/reviews'
     | '/rewards'
     | '/settings'
     | '/support'
@@ -252,13 +285,16 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_app'
+    | '/login'
     | '/_app/attendance'
     | '/_app/billing'
     | '/_app/contracts'
+    | '/_app/job-builder'
     | '/_app/knowledge-base'
     | '/_app/marketplace'
     | '/_app/my-cyberbackers'
     | '/_app/performance'
+    | '/_app/reviews'
     | '/_app/rewards'
     | '/_app/settings'
     | '/_app/support'
@@ -276,10 +312,18 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
+  LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app': {
       id: '/_app'
       path: ''
@@ -315,6 +359,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRewardsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/reviews': {
+      id: '/_app/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof AppReviewsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/performance': {
       id: '/_app/performance'
       path: '/performance'
@@ -341,6 +392,13 @@ declare module '@tanstack/react-router' {
       path: '/knowledge-base'
       fullPath: '/knowledge-base'
       preLoaderRoute: typeof AppKnowledgeBaseRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/job-builder': {
+      id: '/_app/job-builder'
+      path: '/job-builder'
+      fullPath: '/job-builder'
+      preLoaderRoute: typeof AppJobBuilderRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/contracts': {
@@ -434,10 +492,12 @@ interface AppRouteChildren {
   AppAttendanceRoute: typeof AppAttendanceRoute
   AppBillingRoute: typeof AppBillingRoute
   AppContractsRoute: typeof AppContractsRoute
+  AppJobBuilderRoute: typeof AppJobBuilderRoute
   AppKnowledgeBaseRoute: typeof AppKnowledgeBaseRoute
   AppMarketplaceRoute: typeof AppMarketplaceRoute
   AppMyCyberbackersRoute: typeof AppMyCyberbackersRoute
   AppPerformanceRoute: typeof AppPerformanceRoute
+  AppReviewsRoute: typeof AppReviewsRoute
   AppRewardsRoute: typeof AppRewardsRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppSupportRoute: typeof AppSupportRoute
@@ -457,10 +517,12 @@ const AppRouteChildren: AppRouteChildren = {
   AppAttendanceRoute: AppAttendanceRoute,
   AppBillingRoute: AppBillingRoute,
   AppContractsRoute: AppContractsRoute,
+  AppJobBuilderRoute: AppJobBuilderRoute,
   AppKnowledgeBaseRoute: AppKnowledgeBaseRoute,
   AppMarketplaceRoute: AppMarketplaceRoute,
   AppMyCyberbackersRoute: AppMyCyberbackersRoute,
   AppPerformanceRoute: AppPerformanceRoute,
+  AppReviewsRoute: AppReviewsRoute,
   AppRewardsRoute: AppRewardsRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppSupportRoute: AppSupportRoute,
@@ -480,6 +542,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
