@@ -70,9 +70,13 @@ export const Route = createFileRoute("/_app/marketplace")({
       },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>): { skill?: string; tier?: "trainable" | "experienced" } => ({
-    skill: typeof s.skill === "string" ? s.skill : undefined,
+  validateSearch: (
+    s: Record<string, unknown>,
+  ): { title?: string; skills?: string[]; tier?: "trainable" | "experienced"; kw?: string } => ({
+    title: typeof s.title === "string" ? s.title : undefined,
+    skills: Array.isArray(s.skills) ? s.skills.filter((x): x is string => typeof x === "string") : undefined,
     tier: s.tier === "trainable" || s.tier === "experienced" ? s.tier : undefined,
+    kw: typeof s.kw === "string" ? s.kw : undefined,
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(q.candidates()),
   component: Marketplace,
