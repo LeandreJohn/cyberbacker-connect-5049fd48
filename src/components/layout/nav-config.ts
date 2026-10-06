@@ -21,6 +21,8 @@ import {
   UserSquare,
   Users,
   Workflow,
+  Star,
+  FilePen,
   type LucideIcon,
 } from "lucide-react";
 
@@ -42,6 +44,8 @@ export const navGroups: NavGroup[] = [
       { title: "Dashboard", to: "/", icon: LayoutDashboard },
       { title: "My Cyberbackers", to: "/my-cyberbackers", icon: Users },
       { title: "Hiring Marketplace", to: "/marketplace", icon: Store },
+      { title: "Job Description Builder", to: "/job-builder", icon: FilePen },
+      { title: "Reviews & Ratings", to: "/reviews", icon: Star },
       { title: "Attendance", to: "/attendance", icon: CalendarClock },
       { title: "Performance Reports", to: "/performance", icon: TrendingUp },
       { title: "Support Center", to: "/support", icon: LifeBuoy },
