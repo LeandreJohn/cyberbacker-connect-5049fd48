@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import {
@@ -70,9 +70,13 @@ export const Route = createFileRoute("/_app/marketplace")({
       },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>): { skill?: string; tier?: "trainable" | "experienced" } => ({
-    skill: typeof s.skill === "string" ? s.skill : undefined,
+  validateSearch: (
+    s: Record<string, unknown>,
+  ): { title?: string; skills?: string[]; tier?: "trainable" | "experienced"; kw?: string } => ({
+    title: typeof s.title === "string" ? s.title : undefined,
+    skills: Array.isArray(s.skills) ? s.skills.filter((x): x is string => typeof x === "string") : undefined,
     tier: s.tier === "trainable" || s.tier === "experienced" ? s.tier : undefined,
+    kw: typeof s.kw === "string" ? s.kw : undefined,
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(q.candidates()),
   component: Marketplace,
@@ -84,7 +88,19 @@ function Marketplace() {
   const { data: candidates } = useSuspenseQuery(q.candidates());
 
   const preset = Route.useSearch();
-  const [search, setSearch] = useState(preset.skill ?? "");
+  const navigate = useNavigate({ from: "/marketplace" });
+  const jdActive = Boolean(preset.title || (preset.skills && preset.skills.length > 0));
+  const jdSkills = useMemo(() => preset.skills ?? [], [preset.skills]);
+  const jdKeywords = useMemo(
+    () =>
+      (preset.kw ?? "")
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter((w) => w.length > 3),
+    [preset.kw],
+  );
+
+  const [search, setSearch] = useState(preset.title ?? "");
   const [availability, setAvailability] = useState("all");
   const [industry, setIndustry] = useState("all");
   const [minExp, setMinExp] = useState(preset.tier === "experienced" ? 3 : 0);
@@ -103,6 +119,30 @@ function Marketplace() {
     return Array.from(set).sort();
   }, [candidates]);
 
+  // Recompute match scores against the job description when one is active.
+  const jdScore = useMemo(() => {
+    if (!jdActive) return null;
+    const map = new Map<string, number>();
+    const titleTerm = (preset.title ?? "").toLowerCase();
+    for (const c of candidates) {
+      const candSkills = c.skills.map((s) => s.toLowerCase());
+      const skillHits = jdSkills.filter((s) =>
+        candSkills.some((cs) => cs.includes(s.toLowerCase()) || s.toLowerCase().includes(cs)),
+      ).length;
+      const skillScore = jdSkills.length > 0 ? (skillHits / jdSkills.length) * 55 : 30;
+      const titleScore =
+        titleTerm && (c.title.toLowerCase().includes(titleTerm) || titleTerm.includes(c.title.toLowerCase()))
+          ? 20
+          : 0;
+      const haystack = `${c.title} ${c.skills.join(" ")} ${c.industries.join(" ")}`.toLowerCase();
+      const kwHits = jdKeywords.filter((w) => haystack.includes(w)).length;
+      const kwScore = jdKeywords.length > 0 ? Math.min(15, (kwHits / Math.min(jdKeywords.length, 8)) * 15) : 0;
+      const expScore = preset.tier === "experienced" ? (c.yearsExperience >= 3 ? 10 : 0) : Math.min(10, c.yearsExperience * 3);
+      map.set(c.id, Math.min(99, Math.round(skillScore + titleScore + kwScore + expScore)));
+    }
+    return map;
+  }, [candidates, jdActive, jdSkills, jdKeywords, preset.title, preset.tier]);
+
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     const list = candidates.filter((c) => {
@@ -112,6 +152,13 @@ function Marketplace() {
         c.title.toLowerCase().includes(term) ||
         c.skills.some((s) => s.toLowerCase().includes(term)) ||
         c.industries.some((i) => i.toLowerCase().includes(term));
+      const matchesJdSkills = jdSkills.every((s) =>
+        c.skills.some((cs) => {
+          const a = cs.toLowerCase();
+          const b = s.toLowerCase();
+          return a.includes(b) || b.includes(a);
+        }),
+      );
       const matchesAvail = availability === "all" || c.availability === availability;
       const matchesIndustry = industry === "all" || c.industries.includes(industry);
       const matchesExp = c.yearsExperience >= minExp;
@@ -119,6 +166,7 @@ function Marketplace() {
       const matchesValues = c.valuesScore >= minValues;
       return (
         matchesSearch &&
+        matchesJdSkills &&
         matchesAvail &&
         matchesIndustry &&
         matchesExp &&
@@ -138,10 +186,16 @@ function Marketplace() {
         case "rate":
           return a.hourlyRate - b.hourlyRate;
         default:
-          return b.matchScore - a.matchScore;
+          return (jdScore?.get(b.id) ?? b.matchScore) - (jdScore?.get(a.id) ?? a.matchScore);
       }
     });
-  }, [candidates, search, availability, industry, minExp, minRating, minValues, sort]);
+  }, [candidates, search, jdSkills, availability, industry, minExp, minRating, minValues, sort, jdScore]);
+
+  const clearJd = () =>
+    navigate({ search: {}, replace: true }).then(() => {
+      setSearch("");
+      if (preset.tier === "experienced") setMinExp(0);
+    });
 
   const activeFilterCount =
     (availability !== "all" ? 1 : 0) +
@@ -199,6 +253,51 @@ function Marketplace() {
         title="Hiring Marketplace"
         description="Vetted, ready-to-start Cyberbacker talent matched to your needs"
       />
+
+      {/* Active job-description filter banner */}
+      {jdActive && (
+        <Card className="border-primary/40 bg-primary/5">
+          <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1.5">
+              <p className="text-sm font-semibold">
+                Filtering by job description{preset.title ? `: ${preset.title}` : ""}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {jdSkills.map((s) => (
+                  <Badge key={s} className="gap-1">
+                    {s}
+                    <button
+                      type="button"
+                      aria-label={`Remove ${s} filter`}
+                      onClick={() =>
+                        navigate({
+                          search: (prev: Record<string, unknown>) => ({ ...prev, skills: jdSkills.filter((x) => x !== s) }),
+                          replace: true,
+                        })
+                      }
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+                {preset.tier && (
+                  <Badge variant="secondary">
+                    {preset.tier === "experienced" ? "Experienced · 3+ yrs" : "Trainable · entry level"}
+                  </Badge>
+                )}
+              </div>
+            </div>
+            <div className="flex shrink-0 gap-2">
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/job-builder">Edit job description</Link>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={clearJd}>
+                <X className="mr-1 h-3.5 w-3.5" /> Clear
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Toolbar */}
       <Card>
@@ -385,7 +484,7 @@ function Marketplace() {
                 <CardContent className="flex-1 space-y-3">
                   <div className="flex items-center justify-between">
                     <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
-                      {c.matchScore}% match
+                      {jdScore?.get(c.id) ?? c.matchScore}% match
                     </Badge>
                     <StatusBadge label={c.availability} tone={toneFor(c.availability)} />
                   </div>
@@ -483,7 +582,7 @@ function Marketplace() {
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
-                        {activeCandidate.matchScore}% match
+                        {jdScore?.get(activeCandidate.id) ?? activeCandidate.matchScore}% match
                       </Badge>
                       <StatusBadge
                         label={activeCandidate.availability}
