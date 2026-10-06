@@ -254,6 +254,51 @@ function Marketplace() {
         description="Vetted, ready-to-start Cyberbacker talent matched to your needs"
       />
 
+      {/* Active job-description filter banner */}
+      {jdActive && (
+        <Card className="border-primary/40 bg-primary/5">
+          <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1.5">
+              <p className="text-sm font-semibold">
+                Filtering by job description{preset.title ? `: ${preset.title}` : ""}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {jdSkills.map((s) => (
+                  <Badge key={s} className="gap-1">
+                    {s}
+                    <button
+                      type="button"
+                      aria-label={`Remove ${s} filter`}
+                      onClick={() =>
+                        navigate({
+                          search: (prev: Record<string, unknown>) => ({ ...prev, skills: jdSkills.filter((x) => x !== s) }),
+                          replace: true,
+                        })
+                      }
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+                {preset.tier && (
+                  <Badge variant="secondary">
+                    {preset.tier === "experienced" ? "Experienced · 3+ yrs" : "Trainable · entry level"}
+                  </Badge>
+                )}
+              </div>
+            </div>
+            <div className="flex shrink-0 gap-2">
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/job-builder">Edit job description</Link>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={clearJd}>
+                <X className="mr-1 h-3.5 w-3.5" /> Clear
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Toolbar */}
       <Card>
         <CardContent className="space-y-3 p-4">
@@ -439,7 +484,7 @@ function Marketplace() {
                 <CardContent className="flex-1 space-y-3">
                   <div className="flex items-center justify-between">
                     <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
-                      {c.matchScore}% match
+                      {jdScore?.get(c.id) ?? c.matchScore}% match
                     </Badge>
                     <StatusBadge label={c.availability} tone={toneFor(c.availability)} />
                   </div>
@@ -537,7 +582,7 @@ function Marketplace() {
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
-                        {activeCandidate.matchScore}% match
+                        {jdScore?.get(activeCandidate.id) ?? activeCandidate.matchScore}% match
                       </Badge>
                       <StatusBadge
                         label={activeCandidate.availability}
