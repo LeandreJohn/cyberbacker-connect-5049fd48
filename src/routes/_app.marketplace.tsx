@@ -70,6 +70,10 @@ export const Route = createFileRoute("/_app/marketplace")({
       },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>): { skill?: string; tier?: "trainable" | "experienced" } => ({
+    skill: typeof s.skill === "string" ? s.skill : undefined,
+    tier: s.tier === "trainable" || s.tier === "experienced" ? s.tier : undefined,
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(q.candidates()),
   component: Marketplace,
 });
@@ -79,10 +83,11 @@ const MAX_COMPARE = 4;
 function Marketplace() {
   const { data: candidates } = useSuspenseQuery(q.candidates());
 
-  const [search, setSearch] = useState("");
+  const preset = Route.useSearch();
+  const [search, setSearch] = useState(preset.skill ?? "");
   const [availability, setAvailability] = useState("all");
   const [industry, setIndustry] = useState("all");
-  const [minExp, setMinExp] = useState(0);
+  const [minExp, setMinExp] = useState(preset.tier === "experienced" ? 3 : 0);
   const [minRating, setMinRating] = useState(0);
   const [minValues, setMinValues] = useState(0);
   const [sort, setSort] = useState("match");

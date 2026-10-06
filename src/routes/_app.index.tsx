@@ -6,6 +6,7 @@ import {
   CalendarClock,
   Clock,
   Download,
+  FilePen,
   LifeBuoy,
   Megaphone,
   RefreshCw,
@@ -22,6 +23,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrendAreaChart, DonutChart, chartColors } from "@/components/charts/Charts";
 import { q } from "@/lib/data/queries";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { JobDescriptionBuilder } from "@/components/jobs/JobDescriptionBuilder";
 import logoLight from "@/assets/cyberbacker-logo-light.png";
 
 export const Route = createFileRoute("/_app/")({
@@ -218,6 +221,24 @@ function Dashboard() {
                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
               </Link>
             ))}
+            <Dialog>
+              <DialogTrigger asChild>
+                <button type="button" className="flex w-full items-center gap-3 rounded-lg border border-border p-3 text-left transition-colors hover:bg-accent">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                    <FilePen className="h-4.5 w-4.5" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">Build Job Description</p>
+                    <p className="text-xs text-muted-foreground">Tasks, skills & tier</p>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+                <DialogHeader><DialogTitle>Job Description Builder</DialogTitle></DialogHeader>
+                <JobDescriptionBuilder compact />
+              </DialogContent>
+            </Dialog>
             <button
               type="button"
               onClick={() =>

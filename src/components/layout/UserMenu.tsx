@@ -56,8 +56,10 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-destructive focus:text-destructive">
-          <LogOut className="mr-2 h-4 w-4" /> Sign out
+        <DropdownMenuItem asChild className="text-destructive focus:text-destructive">
+          <Link to="/login">
+            <LogOut className="mr-2 h-4 w-4" /> Sign out
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
