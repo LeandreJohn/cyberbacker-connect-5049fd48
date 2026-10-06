@@ -88,7 +88,19 @@ function Marketplace() {
   const { data: candidates } = useSuspenseQuery(q.candidates());
 
   const preset = Route.useSearch();
-  const [search, setSearch] = useState(preset.skill ?? "");
+  const navigate = useNavigate({ from: "/marketplace" });
+  const jdActive = Boolean(preset.title || (preset.skills && preset.skills.length > 0));
+  const jdSkills = useMemo(() => preset.skills ?? [], [preset.skills]);
+  const jdKeywords = useMemo(
+    () =>
+      (preset.kw ?? "")
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter((w) => w.length > 3),
+    [preset.kw],
+  );
+
+  const [search, setSearch] = useState(preset.title ?? "");
   const [availability, setAvailability] = useState("all");
   const [industry, setIndustry] = useState("all");
   const [minExp, setMinExp] = useState(preset.tier === "experienced" ? 3 : 0);
