@@ -156,7 +156,24 @@ export function JobDescriptionBuilder({ compact }: { compact?: boolean }) {
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => { void navigator.clipboard.writeText(text); toast.success("Copied to clipboard"); }}><Copy className="mr-1.5 h-4 w-4" />Copy</Button>
             <Button variant="outline" onClick={download}><Download className="mr-1.5 h-4 w-4" />Download</Button>
-            <Button onClick={() => navigate({ to: "/marketplace", search: { skill: skills[0], tier } })}><Search className="mr-1.5 h-4 w-4" />Find matching candidates</Button>
+            <Button
+              onClick={() => {
+                toast.success("Filters applied from your job description", {
+                  description: `${skills.length} skill${skills.length === 1 ? "" : "s"} · ${t.label}`,
+                });
+                navigate({
+                  to: "/marketplace",
+                  search: {
+                    title,
+                    skills,
+                    tier,
+                    kw: [...tasks, ...resp].join(" "),
+                  },
+                });
+              }}
+            >
+              <Search className="mr-1.5 h-4 w-4" />Find matching candidates
+            </Button>
           </div>
         </CardContent>
       </Card>
