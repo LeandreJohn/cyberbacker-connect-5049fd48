@@ -49,7 +49,7 @@ export const Route = createFileRoute("/_app/")({
   },
   errorComponent: ({ error }) => (
     <div role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-sm">
-      Failed to load the dashboard: {error.message}
+      Failed to load the dashboard: {(error as Error).message}
     </div>
   ),
   component: Dashboard,
