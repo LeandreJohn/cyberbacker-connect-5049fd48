@@ -152,13 +152,15 @@ function Marketplace() {
         c.title.toLowerCase().includes(term) ||
         c.skills.some((s) => s.toLowerCase().includes(term)) ||
         c.industries.some((i) => i.toLowerCase().includes(term));
-      const matchesJdSkills = jdSkills.every((s) =>
-        c.skills.some((cs) => {
-          const a = cs.toLowerCase();
-          const b = s.toLowerCase();
-          return a.includes(b) || b.includes(a);
-        }),
-      );
+      const matchesJdSkills =
+        jdSkills.length === 0 ||
+        jdSkills.some((s) =>
+          c.skills.some((cs) => {
+            const a = cs.toLowerCase();
+            const b = s.toLowerCase();
+            return a.includes(b) || b.includes(a) || b.split(/\s+/).some((w) => w.length > 3 && a.includes(w));
+          }),
+        );
       const matchesAvail = availability === "all" || c.availability === availability;
       const matchesIndustry = industry === "all" || c.industries.includes(industry);
       const matchesExp = c.yearsExperience >= minExp;
