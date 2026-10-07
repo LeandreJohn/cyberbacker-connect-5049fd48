@@ -145,20 +145,30 @@ function Marketplace() {
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
+    const words = term.split(/\s+/).filter((w) => w.length > 2);
     const list = candidates.filter((c) => {
       const matchesSearch =
         !term ||
         c.name.toLowerCase().includes(term) ||
         c.title.toLowerCase().includes(term) ||
         c.skills.some((s) => s.toLowerCase().includes(term)) ||
-        c.industries.some((i) => i.toLowerCase().includes(term));
-      const matchesJdSkills = jdSkills.every((s) =>
-        c.skills.some((cs) => {
-          const a = cs.toLowerCase();
-          const b = s.toLowerCase();
-          return a.includes(b) || b.includes(a);
-        }),
-      );
+        c.industries.some((i) => i.toLowerCase().includes(term)) ||
+        (words.length > 0 &&
+          words.some(
+            (w) =>
+              c.title.toLowerCase().includes(w) ||
+              c.skills.some((s) => s.toLowerCase().includes(w)) ||
+              c.industries.some((i) => i.toLowerCase().includes(w)),
+          ));
+      const matchesJdSkills =
+        jdSkills.length === 0 ||
+        jdSkills.some((s) =>
+          c.skills.some((cs) => {
+            const a = cs.toLowerCase();
+            const b = s.toLowerCase();
+            return a.includes(b) || b.includes(a) || b.split(/\s+/).some((w) => w.length > 3 && a.includes(w));
+          }),
+        );
       const matchesAvail = availability === "all" || c.availability === availability;
       const matchesIndustry = industry === "all" || c.industries.includes(industry);
       const matchesExp = c.yearsExperience >= minExp;
