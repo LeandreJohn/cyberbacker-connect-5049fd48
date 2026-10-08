@@ -111,6 +111,12 @@ export interface Candidate {
   valuesScore: number; // 0-100 Values Assessment Score
   introVideoUrl?: string; // placeholder; empty for now
   bio: string;
+  tools?: string[];
+  timezone?: string;
+  availabilityHours?: string[];
+  workStyle?: "Proactive" | "Reactive" | "Combination";
+  languages?: string[];
+  certifications?: string[];
 }
 
 export interface AttendanceEntry {
