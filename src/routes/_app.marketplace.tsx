@@ -90,6 +90,10 @@ export const Route = createFileRoute("/_app/marketplace")({
         name: "description",
         content: "Browse, compare, and hire vetted Cyberbacker talent for your team.",
       },
+      { property: "og:title", content: "Hiring Marketplace — Cyberbacker" },
+      { property: "og:description", content: "Browse, compare, and hire vetted Cyberbacker talent for your team." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   validateSearch: (s: Record<string, unknown>): MarketplaceSearch => ({
