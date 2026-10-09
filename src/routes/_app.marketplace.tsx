@@ -61,8 +61,6 @@ import { q } from "@/lib/data/queries";
 import {
   EXPERIENCE_TIERS,
   scoreCandidate,
-  tierExperienceMatches,
-  type ExperienceTier,
   type JobMatchProfile,
 } from "@/lib/jobs/matching";
 import type { Candidate } from "@/lib/data/types";
@@ -462,6 +460,7 @@ function Marketplace() {
           {filtered.map((c) => {
             const isShortlisted = shortlist.has(c.id);
             const inCompare = compare.includes(c.id);
+            const jdMatch = jdMatches?.get(c.id);
             return (
               <Card key={c.id} className="flex flex-col shadow-card">
                 <CardHeader className="flex-row items-start gap-3 space-y-0">
@@ -488,7 +487,7 @@ function Marketplace() {
                 <CardContent className="flex-1 space-y-3">
                   <div className="flex items-center justify-between">
                     <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
-                      {jdScore?.get(c.id) ?? c.matchScore}% match
+                      {jdMatch?.score ?? c.matchScore}% match
                     </Badge>
                     <StatusBadge label={c.availability} tone={toneFor(c.availability)} />
                   </div>
@@ -521,6 +520,18 @@ function Marketplace() {
                     <span className="text-muted-foreground">{c.yearsExperience} yrs exp</span>
                     <span className="font-semibold">${c.hourlyRate}/hr</span>
                   </div>
+
+                  {jdMatch && (
+                    <div className="space-y-1.5 rounded-md border bg-muted/30 p-2.5 text-xs">
+                      <p className="font-medium">Why this candidate fits</p>
+                      {jdMatch.strengths.length > 0 && (
+                        <p className="text-muted-foreground"><span className="font-medium text-success">Strengths:</span> {jdMatch.strengths.join(" · ")}</p>
+                      )}
+                      {jdMatch.gaps.length > 0 && (
+                        <p className="text-muted-foreground"><span className="font-medium text-warning">Gaps:</span> {jdMatch.gaps.join(" · ")}</p>
+                      )}
+                    </div>
+                  )}
 
                   <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
                     <Checkbox
@@ -586,7 +597,7 @@ function Marketplace() {
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
-                        {jdScore?.get(activeCandidate.id) ?? activeCandidate.matchScore}% match
+                        {jdMatches?.get(activeCandidate.id)?.score ?? activeCandidate.matchScore}% match
                       </Badge>
                       <StatusBadge
                         label={activeCandidate.availability}
@@ -649,6 +660,15 @@ function Marketplace() {
                     ))}
                   </div>
                 </Section>
+
+                {jdMatches?.get(activeCandidate.id) && (
+                  <Section title="Job description match">
+                    <div className="space-y-2 rounded-md border bg-muted/30 p-3 text-sm text-muted-foreground">
+                      <p><span className="font-medium text-foreground">Strengths:</span> {jdMatches.get(activeCandidate.id)?.strengths.join(" · ") || "General profile fit"}</p>
+                      <p><span className="font-medium text-foreground">Gaps:</span> {jdMatches.get(activeCandidate.id)?.gaps.join(" · ") || "No material gaps identified"}</p>
+                    </div>
+                  </Section>
+                )}
 
                 <div className="flex flex-col gap-2 pb-2 sm:flex-row">
                   <Button
@@ -742,7 +762,7 @@ function Marketplace() {
                 </tr>
               </thead>
               <tbody className="[&_td]:border-t [&_td]:p-2 [&_td]:align-top">
-                <CompareRow label="Match score" cells={compareCandidates.map((c) => `${c.matchScore}%`)} />
+                <CompareRow label="Match score" cells={compareCandidates.map((c) => `${jdMatches?.get(c.id)?.score ?? c.matchScore}%`)} />
                 <CompareRow
                   label="Availability"
                   cells={compareCandidates.map((c) => (
