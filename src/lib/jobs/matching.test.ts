@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 
 import { scoreCandidate, tierExperienceMatches, type JobMatchProfile } from "./matching";
 
@@ -51,6 +51,7 @@ describe("experience tiers", () => {
 
 test("missing a required skill fails constraints while a preferred skill does not", () => {
   expect(scoreCandidate(profile, candidate).passesConstraints).toBe(true);
+  expect(scoreCandidate({ ...profile, requiredSkills: ["Email Management"] }, { ...candidate, skills: ["Inbox"] }).passesConstraints).toBe(true);
   expect(scoreCandidate({ ...profile, requiredSkills: ["Bookkeeping"] }, candidate).passesConstraints).toBe(false);
   expect(scoreCandidate({ ...profile, preferredSkills: ["Bookkeeping"] }, candidate).passesConstraints).toBe(true);
 });

@@ -58,7 +58,29 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { q } from "@/lib/data/queries";
+import {
+  EXPERIENCE_TIERS,
+  scoreCandidate,
+  type ExperienceTier,
+  type JobMatchProfile,
+} from "@/lib/jobs/matching";
 import type { Candidate } from "@/lib/data/types";
+
+interface MarketplaceSearch {
+  title?: string;
+  industry?: string;
+  tier?: ExperienceTier;
+  requiredSkills?: string[];
+  preferredSkills?: string[];
+  responsibilities?: string[];
+  deliverables?: string[];
+  tools?: string[];
+  timezone?: string;
+  availabilityHours?: string;
+  workStyle?: string;
+  language?: string;
+  certification?: string;
+}
 
 export const Route = createFileRoute("/_app/marketplace")({
   head: () => ({
@@ -68,15 +90,26 @@ export const Route = createFileRoute("/_app/marketplace")({
         name: "description",
         content: "Browse, compare, and hire vetted Cyberbacker talent for your team.",
       },
+      { property: "og:title", content: "Hiring Marketplace — Cyberbacker" },
+      { property: "og:description", content: "Browse, compare, and hire vetted Cyberbacker talent for your team." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
-  validateSearch: (
-    s: Record<string, unknown>,
-  ): { title?: string; skills?: string[]; tier?: "trainable" | "experienced"; kw?: string } => ({
+  validateSearch: (s: Record<string, unknown>): MarketplaceSearch => ({
     title: typeof s.title === "string" ? s.title : undefined,
-    skills: Array.isArray(s.skills) ? s.skills.filter((x): x is string => typeof x === "string") : undefined,
-    tier: s.tier === "trainable" || s.tier === "experienced" ? s.tier : undefined,
-    kw: typeof s.kw === "string" ? s.kw : undefined,
+    industry: typeof s.industry === "string" ? s.industry : undefined,
+    tier: s.tier === "beginner" || s.tier === "intermediate" || s.tier === "advanced" ? s.tier : undefined,
+    requiredSkills: Array.isArray(s.requiredSkills) ? s.requiredSkills.filter((x): x is string => typeof x === "string") : undefined,
+    preferredSkills: Array.isArray(s.preferredSkills) ? s.preferredSkills.filter((x): x is string => typeof x === "string") : undefined,
+    responsibilities: Array.isArray(s.responsibilities) ? s.responsibilities.filter((x): x is string => typeof x === "string") : undefined,
+    deliverables: Array.isArray(s.deliverables) ? s.deliverables.filter((x): x is string => typeof x === "string") : undefined,
+    tools: Array.isArray(s.tools) ? s.tools.filter((x): x is string => typeof x === "string") : undefined,
+    timezone: typeof s.timezone === "string" ? s.timezone : undefined,
+    availabilityHours: typeof s.availabilityHours === "string" ? s.availabilityHours : undefined,
+    workStyle: typeof s.workStyle === "string" ? s.workStyle : undefined,
+    language: typeof s.language === "string" ? s.language : undefined,
+    certification: typeof s.certification === "string" ? s.certification : undefined,
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(q.candidates()),
   component: Marketplace,
@@ -89,21 +122,30 @@ function Marketplace() {
 
   const preset = Route.useSearch();
   const navigate = useNavigate({ from: "/marketplace" });
-  const jdActive = Boolean(preset.title || (preset.skills && preset.skills.length > 0));
-  const jdSkills = useMemo(() => preset.skills ?? [], [preset.skills]);
-  const jdKeywords = useMemo(
-    () =>
-      (preset.kw ?? "")
-        .toLowerCase()
-        .split(/[^a-z0-9]+/)
-        .filter((w) => w.length > 3),
-    [preset.kw],
-  );
+  const jdActive = Boolean(preset.title || preset.tier || preset.requiredSkills?.length);
+  const jdProfile = useMemo<JobMatchProfile | null>(() => {
+    if (!jdActive || !preset.tier) return null;
+    return {
+      title: preset.title ?? "",
+      industry: preset.industry ?? "",
+      tier: preset.tier,
+      requiredSkills: preset.requiredSkills ?? [],
+      preferredSkills: preset.preferredSkills ?? [],
+      responsibilities: preset.responsibilities ?? [],
+      deliverables: preset.deliverables ?? [],
+      tools: preset.tools ?? [],
+      timezone: preset.timezone ?? "",
+      availabilityHours: preset.availabilityHours ?? "",
+      workStyle: preset.workStyle ?? "",
+      language: preset.language ?? "",
+      certification: preset.certification ?? "",
+    };
+  }, [jdActive, preset]);
 
   const [search, setSearch] = useState(preset.title ?? "");
   const [availability, setAvailability] = useState("all");
   const [industry, setIndustry] = useState("all");
-  const [minExp, setMinExp] = useState(preset.tier === "experienced" ? 3 : 0);
+  const [minExp, setMinExp] = useState(preset.tier === "advanced" ? 4 : preset.tier === "intermediate" ? 1 : 0);
   const [minRating, setMinRating] = useState(0);
   const [minValues, setMinValues] = useState(0);
   const [sort, setSort] = useState("match");
@@ -119,29 +161,10 @@ function Marketplace() {
     return Array.from(set).sort();
   }, [candidates]);
 
-  // Recompute match scores against the job description when one is active.
-  const jdScore = useMemo(() => {
-    if (!jdActive) return null;
-    const map = new Map<string, number>();
-    const titleTerm = (preset.title ?? "").toLowerCase();
-    for (const c of candidates) {
-      const candSkills = c.skills.map((s) => s.toLowerCase());
-      const skillHits = jdSkills.filter((s) =>
-        candSkills.some((cs) => cs.includes(s.toLowerCase()) || s.toLowerCase().includes(cs)),
-      ).length;
-      const skillScore = jdSkills.length > 0 ? (skillHits / jdSkills.length) * 55 : 30;
-      const titleScore =
-        titleTerm && (c.title.toLowerCase().includes(titleTerm) || titleTerm.includes(c.title.toLowerCase()))
-          ? 20
-          : 0;
-      const haystack = `${c.title} ${c.skills.join(" ")} ${c.industries.join(" ")}`.toLowerCase();
-      const kwHits = jdKeywords.filter((w) => haystack.includes(w)).length;
-      const kwScore = jdKeywords.length > 0 ? Math.min(15, (kwHits / Math.min(jdKeywords.length, 8)) * 15) : 0;
-      const expScore = preset.tier === "experienced" ? (c.yearsExperience >= 3 ? 10 : 0) : Math.min(10, c.yearsExperience * 3);
-      map.set(c.id, Math.min(99, Math.round(skillScore + titleScore + kwScore + expScore)));
-    }
-    return map;
-  }, [candidates, jdActive, jdSkills, jdKeywords, preset.title, preset.tier]);
+  const jdMatches = useMemo(() => {
+    if (!jdProfile) return null;
+    return new Map(candidates.map((candidate) => [candidate.id, scoreCandidate(jdProfile, candidate)]));
+  }, [candidates, jdProfile]);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -160,15 +183,7 @@ function Marketplace() {
               c.skills.some((s) => s.toLowerCase().includes(w)) ||
               c.industries.some((i) => i.toLowerCase().includes(w)),
           ));
-      const matchesJdSkills =
-        jdSkills.length === 0 ||
-        jdSkills.some((s) =>
-          c.skills.some((cs) => {
-            const a = cs.toLowerCase();
-            const b = s.toLowerCase();
-            return a.includes(b) || b.includes(a) || b.split(/\s+/).some((w) => w.length > 3 && a.includes(w));
-          }),
-        );
+      const matchesJd = !jdProfile || Boolean(jdMatches?.get(c.id)?.passesConstraints);
       const matchesAvail = availability === "all" || c.availability === availability;
       const matchesIndustry = industry === "all" || c.industries.includes(industry);
       const matchesExp = c.yearsExperience >= minExp;
@@ -176,7 +191,7 @@ function Marketplace() {
       const matchesValues = c.valuesScore >= minValues;
       return (
         matchesSearch &&
-        matchesJdSkills &&
+        matchesJd &&
         matchesAvail &&
         matchesIndustry &&
         matchesExp &&
@@ -196,15 +211,15 @@ function Marketplace() {
         case "rate":
           return a.hourlyRate - b.hourlyRate;
         default:
-          return (jdScore?.get(b.id) ?? b.matchScore) - (jdScore?.get(a.id) ?? a.matchScore);
+          return (jdMatches?.get(b.id)?.score ?? b.matchScore) - (jdMatches?.get(a.id)?.score ?? a.matchScore);
       }
     });
-  }, [candidates, search, jdSkills, availability, industry, minExp, minRating, minValues, sort, jdScore]);
+  }, [candidates, search, jdProfile, jdMatches, availability, industry, minExp, minRating, minValues, sort]);
 
   const clearJd = () =>
-    navigate({ search: {}, replace: true }).then(() => {
+    navigate({ to: ".", search: {}, replace: true }).then(() => {
       setSearch("");
-      if (preset.tier === "experienced") setMinExp(0);
+      if (preset.tier) setMinExp(0);
     });
 
   const activeFilterCount =
@@ -273,7 +288,7 @@ function Marketplace() {
                 Filtering by job description{preset.title ? `: ${preset.title}` : ""}
               </p>
               <div className="flex flex-wrap gap-1.5">
-                {jdSkills.map((s) => (
+                {(preset.requiredSkills ?? []).map((s) => (
                   <Badge key={s} className="gap-1">
                     {s}
                     <button
@@ -281,7 +296,8 @@ function Marketplace() {
                       aria-label={`Remove ${s} filter`}
                       onClick={() =>
                         navigate({
-                          search: (prev: Record<string, unknown>) => ({ ...prev, skills: jdSkills.filter((x) => x !== s) }),
+                          to: ".",
+                          search: (prev) => ({ ...prev, requiredSkills: (preset.requiredSkills ?? []).filter((x) => x !== s) }),
                           replace: true,
                         })
                       }
@@ -291,9 +307,7 @@ function Marketplace() {
                   </Badge>
                 ))}
                 {preset.tier && (
-                  <Badge variant="secondary">
-                    {preset.tier === "experienced" ? "Experienced · 3+ yrs" : "Trainable · entry level"}
-                  </Badge>
+                  <Badge variant="secondary">{EXPERIENCE_TIERS[preset.tier].label} · {EXPERIENCE_TIERS[preset.tier].experience}</Badge>
                 )}
               </div>
             </div>
@@ -468,6 +482,7 @@ function Marketplace() {
           {filtered.map((c) => {
             const isShortlisted = shortlist.has(c.id);
             const inCompare = compare.includes(c.id);
+            const jdMatch = jdMatches?.get(c.id);
             return (
               <Card key={c.id} className="flex flex-col shadow-card">
                 <CardHeader className="flex-row items-start gap-3 space-y-0">
@@ -494,7 +509,7 @@ function Marketplace() {
                 <CardContent className="flex-1 space-y-3">
                   <div className="flex items-center justify-between">
                     <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
-                      {jdScore?.get(c.id) ?? c.matchScore}% match
+                      {jdMatch?.score ?? c.matchScore}% match
                     </Badge>
                     <StatusBadge label={c.availability} tone={toneFor(c.availability)} />
                   </div>
@@ -527,6 +542,18 @@ function Marketplace() {
                     <span className="text-muted-foreground">{c.yearsExperience} yrs exp</span>
                     <span className="font-semibold">${c.hourlyRate}/hr</span>
                   </div>
+
+                  {jdMatch && (
+                    <div className="space-y-1.5 rounded-md border bg-muted/30 p-2.5 text-xs">
+                      <p className="font-medium">Why this candidate fits</p>
+                      {jdMatch.strengths.length > 0 && (
+                        <p className="text-muted-foreground"><span className="font-medium text-success">Strengths:</span> {jdMatch.strengths.join(" · ")}</p>
+                      )}
+                      {jdMatch.gaps.length > 0 && (
+                        <p className="text-muted-foreground"><span className="font-medium text-warning">Gaps:</span> {jdMatch.gaps.join(" · ")}</p>
+                      )}
+                    </div>
+                  )}
 
                   <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
                     <Checkbox
@@ -592,7 +619,7 @@ function Marketplace() {
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
-                        {jdScore?.get(activeCandidate.id) ?? activeCandidate.matchScore}% match
+                        {jdMatches?.get(activeCandidate.id)?.score ?? activeCandidate.matchScore}% match
                       </Badge>
                       <StatusBadge
                         label={activeCandidate.availability}
@@ -655,6 +682,15 @@ function Marketplace() {
                     ))}
                   </div>
                 </Section>
+
+                {jdMatches?.get(activeCandidate.id) && (
+                  <Section title="Job description match">
+                    <div className="space-y-2 rounded-md border bg-muted/30 p-3 text-sm text-muted-foreground">
+                      <p><span className="font-medium text-foreground">Strengths:</span> {jdMatches.get(activeCandidate.id)?.strengths.join(" · ") || "General profile fit"}</p>
+                      <p><span className="font-medium text-foreground">Gaps:</span> {jdMatches.get(activeCandidate.id)?.gaps.join(" · ") || "No material gaps identified"}</p>
+                    </div>
+                  </Section>
+                )}
 
                 <div className="flex flex-col gap-2 pb-2 sm:flex-row">
                   <Button
@@ -748,7 +784,7 @@ function Marketplace() {
                 </tr>
               </thead>
               <tbody className="[&_td]:border-t [&_td]:p-2 [&_td]:align-top">
-                <CompareRow label="Match score" cells={compareCandidates.map((c) => `${c.matchScore}%`)} />
+                <CompareRow label="Match score" cells={compareCandidates.map((c) => `${jdMatches?.get(c.id)?.score ?? c.matchScore}%`)} />
                 <CompareRow
                   label="Availability"
                   cells={compareCandidates.map((c) => (

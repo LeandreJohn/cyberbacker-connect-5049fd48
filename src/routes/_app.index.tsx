@@ -127,7 +127,7 @@ function Dashboard() {
           </div>
           <div className="flex flex-wrap gap-3">
             <Button asChild size="lg" variant="secondary">
-              <Link to="/marketplace">
+              <Link to="/marketplace" search={{}}>
                 <Store className="mr-1.5 h-4 w-4" /> Hire a Cyberbacker
               </Link>
             </Button>
