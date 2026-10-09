@@ -61,9 +61,26 @@ import { q } from "@/lib/data/queries";
 import {
   EXPERIENCE_TIERS,
   scoreCandidate,
+  type ExperienceTier,
   type JobMatchProfile,
 } from "@/lib/jobs/matching";
 import type { Candidate } from "@/lib/data/types";
+
+interface MarketplaceSearch {
+  title?: string;
+  industry?: string;
+  tier?: ExperienceTier;
+  requiredSkills?: string[];
+  preferredSkills?: string[];
+  responsibilities?: string[];
+  deliverables?: string[];
+  tools?: string[];
+  timezone?: string;
+  availabilityHours?: string;
+  workStyle?: string;
+  language?: string;
+  certification?: string;
+}
 
 export const Route = createFileRoute("/_app/marketplace")({
   head: () => ({
@@ -75,7 +92,7 @@ export const Route = createFileRoute("/_app/marketplace")({
       },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: Record<string, unknown>): MarketplaceSearch => ({
     title: typeof s.title === "string" ? s.title : undefined,
     industry: typeof s.industry === "string" ? s.industry : undefined,
     tier: s.tier === "beginner" || s.tier === "intermediate" || s.tier === "advanced" ? s.tier : undefined,
@@ -196,7 +213,7 @@ function Marketplace() {
   }, [candidates, search, jdProfile, jdMatches, availability, industry, minExp, minRating, minValues, sort]);
 
   const clearJd = () =>
-    navigate({ search: {}, replace: true }).then(() => {
+    navigate({ to: ".", search: {}, replace: true }).then(() => {
       setSearch("");
       if (preset.tier) setMinExp(0);
     });
@@ -275,7 +292,8 @@ function Marketplace() {
                       aria-label={`Remove ${s} filter`}
                       onClick={() =>
                         navigate({
-                            search: (prev) => ({ ...prev, requiredSkills: (preset.requiredSkills ?? []).filter((x) => x !== s) }),
+                          to: ".",
+                          search: (prev) => ({ ...prev, requiredSkills: (preset.requiredSkills ?? []).filter((x) => x !== s) }),
                           replace: true,
                         })
                       }

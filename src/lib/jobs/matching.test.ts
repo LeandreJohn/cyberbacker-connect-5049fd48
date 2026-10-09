@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 
 import { scoreCandidate, tierExperienceMatches, type JobMatchProfile } from "./matching";
 
