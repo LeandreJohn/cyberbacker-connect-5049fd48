@@ -64,15 +64,25 @@ export interface CandidateMatchResult {
   gaps: string[];
 }
 
+const SKILL_ALIASES: Record<string, string> = {
+  "calendar management": "calendar",
+  "email management": "inbox",
+  "project management": "project mgmt",
+  "customer service": "customer support",
+  "transaction coordination": "transaction coordinator",
+};
+
+const normalizeTerm = (value: string) => SKILL_ALIASES[value.toLowerCase().trim()] ?? value.toLowerCase().trim();
+
 const normalizedWords = (value: string) =>
-  value
+  normalizeTerm(value)
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter((word) => word.length > 2 && !["management", "assistant", "specialist"].includes(word));
 
 export function termsMatch(left: string, right: string) {
-  const a = left.toLowerCase().trim();
-  const b = right.toLowerCase().trim();
+  const a = normalizeTerm(left);
+  const b = normalizeTerm(right);
   if (!a || !b) return false;
   if (a.includes(b) || b.includes(a)) return true;
   const leftWords = normalizedWords(a);
