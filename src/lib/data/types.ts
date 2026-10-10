@@ -117,6 +117,10 @@ export interface Candidate {
   workStyle?: "Proactive" | "Reactive" | "Combination";
   languages?: string[];
   certifications?: string[];
+  languageProficiency?: Record<string, number>;
+  education?: import("@/lib/jobs/matching").EducationLevel;
+  functionalExpertise?: string[];
+  assessmentScore?: number;
 }
 
 export interface AttendanceEntry {
