@@ -67,6 +67,7 @@ import {
 import type { Candidate } from "@/lib/data/types";
 
 interface MarketplaceSearch {
+  profile?: string;
   title?: string;
   industry?: string;
   tier?: ExperienceTier;
@@ -97,6 +98,7 @@ export const Route = createFileRoute("/_app/marketplace")({
     ],
   }),
   validateSearch: (s: Record<string, unknown>): MarketplaceSearch => ({
+    profile: typeof s.profile === "string" ? s.profile : undefined,
     title: typeof s.title === "string" ? s.title : undefined,
     industry: typeof s.industry === "string" ? s.industry : undefined,
     tier: s.tier === "beginner" || s.tier === "intermediate" || s.tier === "advanced" ? s.tier : undefined,
@@ -122,8 +124,15 @@ function Marketplace() {
 
   const preset = Route.useSearch();
   const navigate = useNavigate({ from: "/marketplace" });
-  const jdActive = Boolean(preset.title || preset.tier || preset.requiredSkills?.length);
+  const jdActive = Boolean(preset.profile || preset.title || preset.tier || preset.requiredSkills?.length);
   const jdProfile = useMemo<JobMatchProfile | null>(() => {
+    if (preset.profile) {
+      try {
+        return JSON.parse(preset.profile) as JobMatchProfile;
+      } catch {
+        return null;
+      }
+    }
     if (!jdActive || !preset.tier) return null;
     return {
       title: preset.title ?? "",

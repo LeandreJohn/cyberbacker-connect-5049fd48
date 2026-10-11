@@ -10,7 +10,7 @@ export const EXPERIENCE_TIERS: Record<ExperienceTier, TierDefinition> = {
   advanced: { label: "Advanced", experience: "4+ years", description: "Deep experience and ready to lead the work with minimal ramp-up.", blurb: "We need an experienced professional who can take ownership quickly, improve the process, and deliver with minimal supervision." },
 };
 
-export interface SkillRequirement { name: string; level: SkillLevel; kind: "skill" | "tool"; }
+export interface SkillRequirement { name: string; level: SkillLevel; kind: "skill" | "tool"; necessity: "must" | "preferred"; }
 export interface LanguageRequirement { language: string; proficiency: number; }
 export interface ScoringWeights { skills: number; experience: number; responsibilities: number; assessment: number; education: number; }
 export const DEFAULT_SCORING_WEIGHTS: ScoringWeights = { skills: 40, experience: 25, responsibilities: 20, assessment: 10, education: 5 };
@@ -44,8 +44,8 @@ function arrayHasMatch(needles: string[], haystack: string[]) { return needles.f
 const EDUCATION_RANK: Record<EducationLevel, number> = { "No preference": 0, "High school": 1, "Some college / Undergraduate": 2, "Associate degree": 3, "Bachelor's degree": 4, "Master's degree": 5, Doctorate: 6 };
 
 export function scoreCandidate(profile: JobMatchProfile, candidate: MatchableCandidate): CandidateMatchResult {
-  const mustHaves = profile.skillRequirements?.filter((item) => item.kind === "skill").map((item) => item.name) ?? profile.requiredSkills;
-  const preferred = profile.skillRequirements?.filter((item) => item.kind === "skill").map((item) => item.name).filter((name) => !mustHaves.includes(name)) ?? profile.preferredSkills;
+  const mustHaves = profile.skillRequirements?.filter((item) => item.necessity === "must").map((item) => item.name) ?? profile.requiredSkills;
+  const preferred = profile.skillRequirements?.filter((item) => item.necessity === "preferred").map((item) => item.name) ?? profile.preferredSkills;
   const toolNeeds = profile.skillRequirements?.filter((item) => item.kind === "tool").map((item) => item.name) ?? profile.tools;
   const requiredHits = arrayHasMatch(mustHaves, [...candidate.skills, ...(candidate.tools ?? [])]);
   const preferredHits = arrayHasMatch(preferred, candidate.skills);
